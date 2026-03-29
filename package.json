@@ -1,0 +1,25 @@
+{
+  "name": "farmad-backend",
+  "version": "2.0.0",
+  "description": "FarmAd Kenya - Agricultural Marketplace API (PostgreSQL)",
+  "main": "src/server.js",
+  "scripts": {
+    "start":       "node src/server.js",
+    "dev":         "nodemon src/server.js",
+    "seed":        "node seed.js",
+    "seed:prices": "node seed-prices.js",
+    "seed:all":    "node seed.js && node seed-prices.js"
+  },
+  "dependencies": {
+    "express":    "^4.18.2",
+    "pg":         "^8.11.3",
+    "bcryptjs":   "^2.4.3",
+    "jsonwebtoken":"^9.0.2",
+    "cors":       "^2.8.5",
+    "dotenv":     "^16.3.1",
+    "uuid":       "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

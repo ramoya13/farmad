@@ -1,0 +1,158 @@
+# /etc/nginx/sites-available/farmad
+#
+# SETUP STEPS:
+#   1. Copy this file:    sudo cp farmad.nginx /etc/nginx/sites-available/farmad
+#   2. Enable it:         sudo ln -s /etc/nginx/sites-available/farmad /etc/nginx/sites-enabled/
+#   3. Get SSL cert:      sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+#   4. Test config:       sudo nginx -t
+#   5. Reload:            sudo systemctl reload nginx
+#
+# Replace 'yourdomain.com' with your actual domain everywhere below.
+
+# ── Rate limiting zones ───────────────────────────────────────────────────────
+# Applied in the server block below. Defined here in the http context.
+# (If you have a top-level nginx.conf that already has these, remove the
+#  limit_req_zone lines and just use the limit_req directives in server.)
+
+limit_req_zone $binary_remote_addr zone=api_general:10m   rate=60r/m;
+limit_req_zone $binary_remote_addr zone=api_auth:10m      rate=10r/m;
+limit_req_zone $binary_remote_addr zone=api_mpesa:10m     rate=5r/m;
+
+# ── HTTP → HTTPS redirect ─────────────────────────────────────────────────────
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Let's Encrypt ACME challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ── Main HTTPS server ─────────────────────────────────────────────────────────
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # ── SSL (managed by certbot — do not edit these lines manually) ───────────
+    ssl_certificate     /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    include             /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+
+    # ── Security headers ──────────────────────────────────────────────────────
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options            DENY                                  always;
+    add_header X-Content-Type-Options     nosniff                               always;
+    add_header Referrer-Policy            "strict-origin-when-cross-origin"     always;
+    add_header X-XSS-Protection           "1; mode=block"                       always;
+
+    # ── Gzip ─────────────────────────────────────────────────────────────────
+    gzip              on;
+    gzip_vary         on;
+    gzip_proxied      any;
+    gzip_comp_level   6;
+    gzip_min_length   1000;
+    gzip_types
+        text/plain text/css text/javascript text/xml
+        application/json application/javascript application/xml
+        application/rss+xml font/woff2 image/svg+xml;
+
+    # ── Logging ───────────────────────────────────────────────────────────────
+    access_log /var/log/nginx/farmad_access.log;
+    error_log  /var/log/nginx/farmad_error.log  warn;
+
+    # ── Client limits ─────────────────────────────────────────────────────────
+    client_max_body_size 10M;
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # M-Pesa callback — must be public, no rate limit, Safaricom IPs only
+    # (optional: uncomment the allow/deny block to restrict to Safaricom CIDRs)
+    # ─────────────────────────────────────────────────────────────────────────
+    location = /api/payments/mpesa/callback {
+        # allow 196.201.214.200/29;   # Safaricom production CIDR (example)
+        # deny  all;
+        limit_req zone=api_mpesa burst=20 nodelay;
+
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Auth endpoints — strict rate limit (10 req/min per IP)
+    # ─────────────────────────────────────────────────────────────────────────
+    location ~ ^/api/auth/(login|register|refresh) {
+        limit_req zone=api_auth burst=5 nodelay;
+        limit_req_status 429;
+
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        'upgrade';
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 30s;
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # All other API routes — 60 req/min per IP
+    # ─────────────────────────────────────────────────────────────────────────
+    location /api/ {
+        limit_req zone=api_general burst=20 nodelay;
+        limit_req_status 429;
+
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        'upgrade';
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 10s;
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Static frontend (index.html + any future assets)
+    # ─────────────────────────────────────────────────────────────────────────
+    location / {
+        # Option A: Node.js serves the static files (current setup)
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # Option B: Nginx serves static files directly (faster — uncomment to use)
+        # Requires: COPY public/ to /var/www/farmad/
+        # root  /var/www/farmad;
+        # index index.html;
+        # try_files $uri $uri/ /index.html;
+        #
+        # Cache static assets aggressively
+        # location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2|woff|ttf)$ {
+        #     expires 1y;
+        #     add_header Cache-Control "public, immutable";
+        # }
+    }
+
+    # Block common attack patterns
+    location ~ /\. { deny all; return 404; }
+}
