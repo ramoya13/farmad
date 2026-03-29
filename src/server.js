@@ -62,11 +62,20 @@ app.use((err, _req, res, _next) => {
 
 // ── Start: init DB then listen ────────────────────────────────────────────────
 async function start() {
+  // Print env diagnostics before attempting connection
+  console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
+  if (process.env.DATABASE_URL) {
+    // Log URL with password masked so you can see host/db name
+    const masked = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ':****@');
+    console.log('DATABASE_URL:', masked);
+  } else {
+    console.error('DATABASE_URL is not set — check Railway Variables tab');
+  }
+
   try {
     await initSchema();
     console.log('✅ Connected to PostgreSQL');
 
-    // Sync prices from listing data (non-blocking — warn but don't crash)
     syncPricesFromListings().then(snapshotWeeklyHistory).catch(e => {
       console.warn('Price sync on startup skipped:', e.message);
     });
@@ -75,16 +84,17 @@ async function start() {
       console.log(`
   ╔═══════════════════════════════════════════════════════╗
   ║          🌱  FarmAd API Server  v2.0                  ║
-  ║─────────────────────────────────────────────────────── ║
-  ║  http://localhost:${PORT}                               ║
-  ║  PostgreSQL  ·  auth · listings · orders              ║
+  ║───────────────────────────────────────────────────────║
+  ║  Port: ${PORT}                                          ║
+  ║  PostgreSQL · auth · listings · orders                ║
   ║  payments · reviews · profiles · prices               ║
   ╚═══════════════════════════════════════════════════════╝
       `);
     });
   } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
-    console.error('   Make sure DATABASE_URL is set correctly in .env');
+    console.error('❌ Failed to connect to PostgreSQL');
+    console.error('   Reason:', err.message);
+    console.error('   DATABASE_URL set:', !!process.env.DATABASE_URL);
     process.exit(1);
   }
 }
