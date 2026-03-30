@@ -193,6 +193,25 @@
 
 <script src="/shared.js"></script>
 <script>
+// Override nav for dashboard — only show avatar + sign out
+updateNav = function() {
+  const user = getUser();
+  const nav  = document.getElementById('navLinks');
+  if (!nav) return;
+  if (user) {
+    const init = user.name.charAt(0).toUpperCase();
+    nav.innerHTML = `
+      <li class="nav-user">
+        <a href="/pages/dashboard.html" style="display:flex;align-items:center;gap:0.6rem;text-decoration:none">
+          <div class="nav-avatar" title="${user.name}">${init}</div>
+          <span class="nav-username">${user.name.split(' ')[0]}</span>
+        </a>
+        <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
+      </li>`;
+  }
+};
+</script>
+<script>
 const user = requireAuth();
 if (!user) throw new Error('redirect');
 const isFarmer = user.role === 'farmer';

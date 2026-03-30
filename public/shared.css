@@ -26,7 +26,9 @@ nav { position:fixed; top:0; left:0; right:0; z-index:200; padding:1.1rem 5vw; d
 .nav-cta { background:var(--leaf)!important; color:white!important; padding:0.55rem 1.3rem; border-radius:100px; font-weight:600!important; }
 .nav-cta:hover { background:var(--earth)!important; }
 .nav-user { display:flex; align-items:center; gap:0.6rem; }
-.nav-avatar { width:34px; height:34px; border-radius:50%; background:var(--leaf); color:white; font-weight:700; font-size:0.88rem; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.nav-avatar { width:34px; height:34px; border-radius:50%; background:var(--leaf); color:white; font-weight:700; font-size:0.88rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:opacity 0.2s; }
+.nav-user a:hover .nav-avatar { opacity:0.85; }
+.nav-user a:hover .nav-username { color:var(--leaf); }
 .nav-username { font-size:0.85rem; font-weight:600; color:var(--earth); }
 .nav-dash-btn { font-size:0.8rem; color:var(--leaf); background:rgba(58,125,44,0.08); border:1px solid rgba(58,125,44,0.2); cursor:pointer; font-family:'DM Sans',sans-serif; padding:0.35rem 0.85rem; border-radius:8px; font-weight:600; text-decoration:none; transition:background 0.2s; }
 .nav-dash-btn:hover { background:rgba(58,125,44,0.15); }
