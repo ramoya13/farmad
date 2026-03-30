@@ -993,11 +993,10 @@ function updateNav() {
     nav.innerHTML = `
       <li><a href="/pages/browse.html">Browse</a></li>
       <li><a href="/pages/prices.html">Prices</a></li>
-      ${isFarmer ? `<li><a href="#" class="nav-cta" onclick="openCreateListing();return false;">+ Post Listing</a></li>` : ''}
       <li class="nav-user">
         <div class="nav-avatar" title="${user.name}">${init}</div>
         <span class="nav-username">${user.name.split(' ')[0]}</span>
-        <button class="nav-dash-btn" href="/pages/dashboard.html" class="nav-dash-btn">Dashboard</button>
+        <a href="/pages/dashboard.html" class="nav-dash-btn">Dashboard</a>
         <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
       </li>`;
   } else {
