@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.stat-card { background:white; border-radius:var(--radius-lg); padding:1.5rem; border:1px solid rgba(92,51,23,0.08); }
+.stat-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:var(--earth); line-height:1; }
+.stat-label { font-size:0.78rem; color:var(--subtext); margin-top:0.3rem; }
+.stat-card.highlight { background:var(--leaf); }
+.stat-card.highlight .stat-num { color:white; }
+.stat-card.highlight .stat-label { color:rgba(255,255,255,0.7); }
+
+.dash-section { margin-bottom:2.5rem; }
+.dash-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
+.dash-section-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:var(--earth); }
+
+.order-row { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:1rem; }
+.order-id { font-size:0.7rem; font-family:monospace; color:var(--subtext); }
+.order-info { flex:1; min-width:0; }
+.order-party { font-size:0.8rem; color:var(--subtext); margin-top:0.15rem; }
+.order-amount { font-weight:700; color:var(--earth); font-size:0.95rem; }
+.order-actions { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem; }
+.action-btn { padding:0.4rem 0.9rem; border-radius:8px; border:none; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.action-confirm { background:var(--leaf); color:white; }
+.action-confirm:hover { background:#2d6122; }
+.action-ready { background:#dbeafe; color:#1e40af; }
+.action-transit { background:#e0e7ff; color:#3730a3; }
+.action-deliver { background:#dcfce7; color:#166534; }
+.action-cancel { background:#fee2e2; color:#991b1b; }
+
+.quick-actions { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+.quick-btn { padding:0.8rem 1.5rem; border-radius:100px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; border:none; text-decoration:none; transition:all 0.2s; display:inline-flex; align-items:center; gap:0.5rem; }
+.quick-btn-primary { background:var(--leaf); color:white; box-shadow:0 4px 16px rgba(58,125,44,0.25); }
+.quick-btn-primary:hover { background:#2d6122; }
+.quick-btn-outline { background:white; color:var(--earth); border:1.5px solid rgba(45,27,14,0.2); }
+.quick-btn-outline:hover { border-color:var(--leaf); color:var(--leaf); }
+
+.review-card { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.review-name { font-weight:600; color:var(--earth); font-size:0.9rem; }
+.review-sub  { font-size:0.75rem; color:var(--subtext); margin-top:0.15rem; }
+
+/* Profile card */
+.profile-card { background:var(--earth); border-radius:var(--radius-lg); padding:2rem; color:white; margin-bottom:2rem; display:flex; align-items:center; gap:1.5rem; }
+.profile-avatar { width:60px; height:60px; border-radius:50%; background:var(--harvest); color:var(--earth); font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.profile-name { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; }
+.profile-role { font-size:0.82rem; color:rgba(255,255,255,0.55); margin-top:0.2rem; }
+
+@media(max-width:700px) { .dash-grid { grid-template-columns:1fr 1fr; } .order-row { flex-wrap:wrap; } }
+@media(max-width:400px) { .dash-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="eyebrow">My Account</div>
+    <h1 id="dashTitle">Dashboard</h1>
+  </div>
+
+  <div class="section" id="dashContent">
+    <!-- filled by JS -->
+    <div class="skeleton" style="height:120px;border-radius:20px;margin-bottom:1.5rem"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+      <div class="skeleton" style="height:90px;border-radius:16px"></div>
+      <div class="skeleton" style="height:90px;border-radius:16px"></div>
+      <div class="skeleton" style="height:90px;border-radius:16px"></div>
+      <div class="skeleton" style="height:90px;border-radius:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Review modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeReviewModal()">✕</button>
+    <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.3rem">Leave a Review</h3>
+    <p style="font-size:0.85rem;color:var(--subtext);margin-bottom:1.25rem" id="reviewFor"></p>
+    <div class="alert alert-error" id="reviewError"></div>
+    <div class="form-group">
+      <label>Rating</label>
+      <select id="reviewRating">
+        <option value="5">⭐⭐⭐⭐⭐ — Excellent</option>
+        <option value="4">⭐⭐⭐⭐ — Good</option>
+        <option value="3">⭐⭐⭐ — Average</option>
+        <option value="2">⭐⭐ — Below average</option>
+        <option value="1">⭐ — Poor</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Comment <span style="font-weight:400;color:var(--subtext)">(optional)</span></label>
+      <textarea id="reviewComment" rows="3" placeholder="Share your experience…" style="border:1.5px solid rgba(92,51,23,0.2);border-radius:12px;padding:0.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;width:100%;resize:vertical"></textarea>
+    </div>
+    <button class="submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review ⭐</button>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const user = requireAuth();
+if (!user) throw new Error('redirect');
+
+const isFarmer = user.role === 'farmer';
+document.getElementById('dashTitle').textContent = isFarmer ? '🌾 Farmer Dashboard' : '🛒 Buyer Dashboard';
+
+let pendingReviewOrder = null;
+
+async function loadDash() {
+  const [summaryRes, ordersRes, pendingRes] = await Promise.all([
+    apiFetch('/orders/summary/me'),
+    apiFetch('/orders?limit=10'),
+    apiFetch('/reviews/pending')
+  ]);
+
+  const summary = summaryRes.ok ? summaryRes.data.data : {};
+  const orders  = ordersRes.ok  ? ordersRes.data.data.orders : [];
+  const pending = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
+  const revenue = isFarmer ? summary.total_revenue : summary.total_spent;
+
+  const content = document.getElementById('dashContent');
+  content.innerHTML = `
+    <div class="profile-card">
+      <div class="profile-avatar">${user.name.charAt(0)}</div>
+      <div>
+        <div class="profile-name">${user.name}</div>
+        <div class="profile-role">${isFarmer ? '🌾 Farmer' : '🛒 Buyer'} · ${user.county || ''}</div>
+      </div>
+      <a href="/pages/settings.html" style="margin-left:auto;color:rgba(255,255,255,0.5);font-size:0.82rem;text-decoration:none">Edit Profile →</a>
+    </div>
+
+    <div class="quick-actions">
+      ${isFarmer
+        ? `<a href="/pages/my-listings.html" class="quick-btn quick-btn-primary">+ Post Listing</a>
+           <a href="/pages/orders.html" class="quick-btn quick-btn-outline">📦 My Orders</a>
+           <a href="/pages/prices.html" class="quick-btn quick-btn-outline">📊 Market Prices</a>`
+        : `<a href="/pages/browse.html" class="quick-btn quick-btn-primary">🛒 Browse Produce</a>
+           <a href="/pages/orders.html" class="quick-btn quick-btn-outline">📦 My Orders</a>
+           <a href="/pages/prices.html" class="quick-btn quick-btn-outline">📊 Market Prices</a>`}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-header"><div class="dash-section-title">Overview</div></div>
+      <div class="dash-grid">
+        <div class="stat-card"><div class="stat-num">${summary.total_orders||0}</div><div class="stat-label">Total Orders</div></div>
+        <div class="stat-card"><div class="stat-num">${summary.delivered||0}</div><div class="stat-label">Completed</div></div>
+        <div class="stat-card"><div class="stat-num">${summary.pending||0}</div><div class="stat-label">Pending</div></div>
+        <div class="stat-card highlight"><div class="stat-num">KSh ${fmtPrice(revenue||0)}</div><div class="stat-label">${isFarmer?'Total Revenue':'Total Spent'}</div></div>
+      </div>
+    </div>
+
+    ${pending.length > 0 ? `
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <div class="dash-section-title">⭐ Pending Reviews (${pending.length})</div>
+      </div>
+      ${pending.map(p => `
+        <div class="review-card">
+          <div>
+            <div class="review-name">${p.reviewee_name}</div>
+            <div class="review-sub">${p.items_summary||'Order #'+p.order_id.slice(0,8).toUpperCase()}</div>
+          </div>
+          <button class="action-btn action-confirm" onclick="openReview('${p.order_id}','${p.reviewee_id}','${p.reviewee_name}')">Write Review</button>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <div class="dash-section-title">Recent Orders</div>
+        <a href="/pages/orders.html" style="font-size:0.82rem;color:var(--leaf);font-weight:600;text-decoration:none">View all →</a>
+      </div>
+      ${orders.length === 0
+        ? `<div class="empty-state"><div class="icon">📦</div><h3>No orders yet</h3><p>${isFarmer?'Orders from buyers will appear here.':'Browse listings to place your first order.'}</p></div>`
+        : orders.map(o => buildOrderRow(o)).join('')}
+    </div>`;
+}
+
+function buildOrderRow(o) {
+  const actions = buildActions(o);
+  return `<div class="order-row">
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+        <div class="order-id">#${o.id.slice(0,8).toUpperCase()}</div>
+        ${statusBadge(o.status)}
+        <div class="order-amount">KSh ${fmtPrice(o.total_amount)}</div>
+      </div>
+      <div class="order-party">${isFarmer ? '← '+o.buyer_name : '→ '+(o.farm_name||o.farmer_name)} · ${fmtDate(o.created_at)}</div>
+      ${actions ? `<div class="order-actions">${actions}</div>` : ''}
+    </div>
+    <a href="/pages/orders.html?id=${o.id}" style="font-size:0.78rem;color:var(--leaf);text-decoration:none;white-space:nowrap">Details →</a>
+  </div>`;
+}
+
+function buildActions(o) {
+  const btns = [];
+  if (isFarmer) {
+    if (o.status==='pending')   btns.push(`<button class="action-btn action-confirm" onclick="updateOrder('${o.id}','confirm')">✓ Confirm</button>`);
+    if (o.status==='confirmed') btns.push(`<button class="action-btn action-ready"  onclick="updateOrder('${o.id}','ready')">Pack Ready</button>`);
+    if (o.status==='ready')     btns.push(`<button class="action-btn action-transit" onclick="updateOrder('${o.id}','in-transit')">Dispatch</button>`);
+  } else {
+    if (['ready','in_transit'].includes(o.status)) btns.push(`<button class="action-btn action-deliver" onclick="updateOrder('${o.id}','delivered')">✓ Received</button>`);
+  }
+  if (!['delivered','cancelled'].includes(o.status)) btns.push(`<button class="action-btn action-cancel" onclick="updateOrder('${o.id}','cancel')">Cancel</button>`);
+  return btns.join('');
+}
+
+async function updateOrder(id, action) {
+  const { ok, data } = await apiFetch(`/orders/${id}/${action}`, { method:'PATCH' });
+  if (ok) { toast('Order updated ✅','success'); loadDash(); }
+  else toast(data.message||'Failed','error');
+}
+
+// Review modal
+function openReview(orderId, revieweeId, name) {
+  pendingReviewOrder = { orderId, revieweeId };
+  document.getElementById('reviewFor').textContent = `Review for ${name}`;
+  document.getElementById('reviewError').style.display='none';
+  document.getElementById('reviewModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeReviewModal() { document.getElementById('reviewModal').classList.remove('open'); document.body.style.overflow=''; }
+
+async function submitReview() {
+  if (!pendingReviewOrder) return;
+  const btn=document.getElementById('reviewSubmitBtn');
+  btn.disabled=true; btn.textContent='Submitting…';
+  const { ok, data } = await apiFetch('/reviews', { method:'POST', body: JSON.stringify({
+    order_id: pendingReviewOrder.orderId,
+    rating:   parseInt(document.getElementById('reviewRating').value),
+    comment:  document.getElementById('reviewComment').value.trim()
+  })});
+  if (ok) { closeReviewModal(); toast('Review submitted! ⭐','success'); loadDash(); }
+  else { const e=document.getElementById('reviewError'); e.textContent=data.message||'Failed'; e.style.display='block'; btn.disabled=false; btn.textContent='Submit Review ⭐'; }
+}
+
+document.getElementById('reviewModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeReviewModal(); });
+
+loadDash();
+</script>
+</body>
+</html>

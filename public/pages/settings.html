@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Settings — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.settings-grid { display:grid; grid-template-columns:220px 1fr; gap:2rem; padding:2.5rem 6vw; align-items:start; }
+.settings-nav { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1rem; position:sticky; top:88px; }
+.snav-item { display:block; padding:0.6rem 0.9rem; border-radius:10px; text-decoration:none; font-size:0.88rem; font-weight:500; color:var(--subtext); transition:all 0.15s; cursor:pointer; border:none; background:none; width:100%; text-align:left; font-family:'DM Sans',sans-serif; }
+.snav-item:hover { background:var(--mist); color:var(--earth); }
+.snav-item.active { background:var(--sky); color:var(--leaf); font-weight:700; }
+.snav-divider { border-top:1px solid var(--mist); margin:0.5rem 0; }
+.settings-panel { display:none; }
+.settings-panel.active { display:block; }
+.panel-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; color:var(--earth); margin-bottom:0.3rem; }
+.panel-desc { font-size:0.85rem; color:var(--subtext); margin-bottom:1.75rem; font-weight:300; }
+.settings-card { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.75rem; margin-bottom:1.5rem; }
+.danger-zone { border-color:rgba(220,38,38,0.2); }
+.danger-zone .panel-title { color:#dc2626; }
+@media(max-width:700px) { .settings-grid { grid-template-columns:1fr; } .settings-nav { position:static; } }
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="eyebrow">My Account</div>
+    <h1>Account <em>Settings</em></h1>
+  </div>
+
+  <div class="settings-grid">
+    <nav class="settings-nav">
+      <button class="snav-item active" onclick="showPanel('profile',this)">👤 Profile</button>
+      <button class="snav-item" onclick="showPanel('farm',this)" id="farmNavBtn">🌾 Farm Details</button>
+      <div class="snav-divider"></div>
+      <button class="snav-item" onclick="showPanel('password',this)">🔒 Password</button>
+      <div class="snav-divider"></div>
+      <button class="snav-item" style="color:#dc2626" onclick="showPanel('danger',this)">⚠️ Sign Out</button>
+    </nav>
+
+    <main>
+      <!-- Profile panel -->
+      <div class="settings-panel active" id="panel-profile">
+        <div class="panel-title">Profile Information</div>
+        <div class="panel-desc">Update your public profile details</div>
+        <div class="settings-card">
+          <div class="alert alert-error"   id="profileError"></div>
+          <div class="alert alert-success" id="profileSuccess"></div>
+          <div class="form-group"><label>Full Name</label><input type="text" id="pName" placeholder="Your name"></div>
+          <div class="form-group"><label>County</label><select id="pCounty"></select></div>
+          <div class="form-group"><label>Bio <span style="font-weight:400;color:var(--subtext)">(optional)</span></label><textarea id="pBio" rows="3" placeholder="Tell buyers about yourself…"></textarea></div>
+          <button class="submit-btn" onclick="saveProfile()" id="profileBtn">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- Farm panel -->
+      <div class="settings-panel" id="panel-farm">
+        <div class="panel-title">Farm Details</div>
+        <div class="panel-desc">Update your farm information shown on your public profile</div>
+        <div class="settings-card">
+          <div class="alert alert-error"   id="farmError"></div>
+          <div class="alert alert-success" id="farmSuccess"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Farm Name</label><input type="text" id="fName" placeholder="Wanjiku Farm"></div>
+            <div class="form-group"><label>Farm Location</label><input type="text" id="fLocation" placeholder="Limuru, Kiambu"></div>
+          </div>
+          <div class="form-group"><label>Farm Size (hectares) <span style="font-weight:400;color:var(--subtext)">(optional)</span></label><input type="number" id="fSize" placeholder="e.g. 2.5" step="0.1" min="0"></div>
+          <div class="form-group">
+            <label>What do you grow?</label>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem" id="produceTypeChecks"></div>
+          </div>
+          <button class="submit-btn" onclick="saveFarm()" id="farmBtn">Save Farm Details</button>
+        </div>
+      </div>
+
+      <!-- Password panel -->
+      <div class="settings-panel" id="panel-password">
+        <div class="panel-title">Change Password</div>
+        <div class="panel-desc">Choose a strong password — you'll be signed out of all devices after changing it.</div>
+        <div class="settings-card">
+          <div class="alert alert-error"   id="pwError"></div>
+          <div class="alert alert-success" id="pwSuccess"></div>
+          <div class="form-group"><label>Current Password</label><input type="password" id="pwCurrent" placeholder="Your current password"></div>
+          <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="Min. 8 characters"></div>
+          <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConfirm" placeholder="Repeat new password"></div>
+          <button class="submit-btn" onclick="changePassword()" id="pwBtn">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Danger panel -->
+      <div class="settings-panel" id="panel-danger">
+        <div class="settings-card danger-zone">
+          <div class="panel-title">Sign Out</div>
+          <div class="panel-desc">You'll need to sign in again to access your account.</div>
+          <button class="btn btn-danger" style="font-size:0.92rem;padding:0.75rem 2rem;border-radius:100px" onclick="handleLogout()">Sign Out of FarmAd</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const user = requireAuth();
+if (!user) throw new Error('redirect');
+
+const PRODUCE_TYPES = ['vegetables','fruits','grains','dairy','legumes','livestock','other'];
+
+// Populate county select
+document.getElementById('pCounty').innerHTML = '<option value="">Select county…</option>' + COUNTIES.map(c=>`<option>${c}</option>`).join('');
+
+// Populate produce type checkboxes
+document.getElementById('produceTypeChecks').innerHTML = PRODUCE_TYPES.map(t=>
+  `<label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.85rem;padding:0.4rem 0.75rem;background:var(--mist);border-radius:8px">
+    <input type="checkbox" value="${t}" class="ptCheck" style="accent-color:var(--leaf);width:auto"> ${CAT_EMOJI[t]||''} ${t}
+  </label>`
+).join('');
+
+// Hide farm nav for buyers
+if (user.role !== 'farmer') document.getElementById('farmNavBtn').style.display='none';
+
+// Load current user data
+async function loadUser() {
+  const { ok, data } = await apiFetch('/auth/me');
+  if (!ok) return;
+  const u = data.data.user;
+  document.getElementById('pName').value = u.name || '';
+  document.getElementById('pCounty').value = u.county || '';
+  document.getElementById('pBio').value = u.bio || '';
+
+  if (u.role==='farmer' && u.profile) {
+    document.getElementById('fName').value = u.profile.farm_name || '';
+    document.getElementById('fLocation').value = u.profile.farm_location || '';
+    document.getElementById('fSize').value = u.profile.farm_size_ha || '';
+    const types = (u.profile.produce_types||'').split(',').map(s=>s.trim());
+    document.querySelectorAll('.ptCheck').forEach(cb => { cb.checked = types.includes(cb.value); });
+  }
+}
+
+function showPanel(id, btn) {
+  document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.snav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`panel-${id}`).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function saveProfile() {
+  const btn=document.getElementById('profileBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  const body = { name:document.getElementById('pName').value.trim(), county:document.getElementById('pCounty').value, bio:document.getElementById('pBio').value.trim() };
+  const { ok, data } = await apiFetch('/auth/me', { method:'PATCH', body:JSON.stringify(body) });
+  const e=document.getElementById('profileError'), s=document.getElementById('profileSuccess');
+  if (ok) {
+    s.textContent='Profile updated!'; s.style.display='block'; e.style.display='none';
+    // Update sessionStorage
+    const stored = getUser();
+    if (stored) { Object.assign(stored,body); sessionStorage.setItem('farmad_user',JSON.stringify(stored)); updateNav(); }
+    toast('Profile saved ✅','success');
+  } else { e.textContent=data.message||'Failed'; e.style.display='block'; s.style.display='none'; }
+  btn.disabled=false; btn.textContent='Save Changes';
+}
+
+async function saveFarm() {
+  const btn=document.getElementById('farmBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  const types = [...document.querySelectorAll('.ptCheck:checked')].map(c=>c.value).join(',');
+  const body = { farm_name:document.getElementById('fName').value.trim(), farm_location:document.getElementById('fLocation').value.trim(), farm_size_ha:parseFloat(document.getElementById('fSize').value)||null, produce_types:types };
+  const { ok, data } = await apiFetch('/auth/me', { method:'PATCH', body:JSON.stringify(body) });
+  const e=document.getElementById('farmError'), s=document.getElementById('farmSuccess');
+  if (ok) { s.textContent='Farm details updated!'; s.style.display='block'; e.style.display='none'; toast('Farm saved ✅','success'); }
+  else { e.textContent=data.message||'Failed'; e.style.display='block'; s.style.display='none'; }
+  btn.disabled=false; btn.textContent='Save Farm Details';
+}
+
+async function changePassword() {
+  const btn=document.getElementById('pwBtn');
+  const np=document.getElementById('pwNew').value, cp=document.getElementById('pwConfirm').value;
+  const e=document.getElementById('pwError'), s=document.getElementById('pwSuccess');
+  e.style.display='none'; s.style.display='none';
+  if (np !== cp) { e.textContent='New passwords do not match.'; e.style.display='block'; return; }
+  if (np.length < 8) { e.textContent='Password must be at least 8 characters.'; e.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Updating…';
+  const { ok, data } = await apiFetch('/auth/change-password', { method:'POST', body:JSON.stringify({ current_password:document.getElementById('pwCurrent').value, new_password:np }) });
+  if (ok) { s.textContent='Password updated. Signing you out…'; s.style.display='block'; setTimeout(()=>{clearAuth();window.location.href='/pages/login.html';}, 2000); }
+  else { e.textContent=data.message||'Failed'; e.style.display='block'; btn.disabled=false; btn.textContent='Update Password'; }
+}
+
+loadUser();
+</script>
+</body>
+</html>

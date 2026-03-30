@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Farmer Profile — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.profile-hero { background:linear-gradient(160deg, var(--earth) 0%, #1a3d0e 60%, var(--earth) 100%); padding:3.5rem 6vw 2rem; }
+.profile-top { display:flex; align-items:flex-end; gap:1.5rem; flex-wrap:wrap; }
+.profile-avatar-xl { width:80px; height:80px; border-radius:50%; background:var(--harvest); color:var(--earth); font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:3px solid rgba(255,255,255,0.2); }
+.profile-name { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--cream); line-height:1.1; }
+.profile-farm { font-size:0.9rem; color:rgba(250,245,236,0.55); margin-top:0.2rem; }
+.profile-verified { display:inline-flex; align-items:center; gap:0.35rem; background:rgba(232,160,32,0.15); border:1px solid rgba(232,160,32,0.3); border-radius:100px; padding:0.25rem 0.75rem; font-size:0.72rem; font-weight:700; color:var(--harvest); margin-top:0.5rem; }
+.profile-stats { display:flex; gap:2rem; margin-top:1.5rem; flex-wrap:wrap; }
+.pstat { }
+.pstat-num { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; color:var(--cream); line-height:1; }
+.pstat-label { font-size:0.72rem; color:rgba(250,245,236,0.45); margin-top:0.2rem; }
+
+.profile-body { display:grid; grid-template-columns:1fr 320px; gap:2rem; padding:2.5rem 6vw; align-items:start; }
+.review-card-pub { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.25rem; margin-bottom:0.75rem; }
+.reviewer-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }
+.reviewer-avatar { width:36px; height:36px; border-radius:50%; background:var(--leaf); color:white; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.review-stars { color:var(--harvest); font-size:0.85rem; }
+.review-comment { font-size:0.88rem; color:var(--subtext); line-height:1.6; font-weight:300; }
+.review-reply { background:var(--mist); border-radius:10px; padding:0.75rem; margin-top:0.75rem; font-size:0.82rem; color:var(--subtext); }
+.review-reply strong { color:var(--earth); }
+
+.rating-breakdown { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.5rem; margin-bottom:1.5rem; }
+.rb-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem; font-size:0.82rem; }
+.rb-label { width:16px; text-align:right; color:var(--subtext); flex-shrink:0; font-size:0.72rem; }
+.rb-bar-wrap { flex:1; background:var(--mist); border-radius:100px; height:7px; overflow:hidden; }
+.rb-bar { background:var(--harvest); height:100%; border-radius:100px; }
+.rb-count { width:28px; text-align:right; color:var(--subtext); font-size:0.72px; }
+
+.contact-card { background:var(--earth); border-radius:var(--radius-lg); padding:1.5rem; color:white; }
+.contact-card h4 { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900; margin-bottom:1rem; }
+.contact-btn { display:block; width:100%; padding:0.8rem; border-radius:12px; border:none; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.88rem; cursor:pointer; text-align:center; text-decoration:none; transition:all 0.2s; margin-bottom:0.6rem; }
+.contact-primary { background:var(--harvest); color:var(--earth); }
+.contact-primary:hover { background:#d4901c; }
+.contact-outline { background:rgba(255,255,255,0.1); color:white; }
+.contact-outline:hover { background:rgba(255,255,255,0.15); }
+
+@media(max-width:800px) { .profile-body { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap" id="pageWrap" style="padding-top:72px">
+  <div style="padding:3rem;text-align:center;font-size:2rem">🌱</div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const farmerId = new URLSearchParams(window.location.search).get('id');
+if (!farmerId) window.location.href = '/pages/browse.html';
+
+async function loadProfile() {
+  const [profileRes, listingsRes, reviewsRes] = await Promise.all([
+    apiFetch(`/profiles/${farmerId}`),
+    apiFetch(`/listings/farmer/${farmerId}`),
+    apiFetch(`/reviews/user/${farmerId}?limit=5`)
+  ]);
+
+  if (!profileRes.ok) { document.getElementById('pageWrap').innerHTML='<div class="empty-state"><div class="icon">😕</div><h3>Farmer not found</h3></div>'; return; }
+
+  const { user, profile, category_stats } = profileRes.data.data;
+  const listings = listingsRes.ok ? (listingsRes.data.data?.listings||[]).filter(l=>l.status==='active') : [];
+  const reviewData = reviewsRes.ok ? reviewsRes.data.data : {};
+  const reviews = reviewData.reviews || [];
+  const agg = reviewData.aggregates || {};
+  const breakdown = reviewData.breakdown || [];
+
+  document.title = `${user.name} — FarmAd`;
+
+  const totalRev = agg.total_reviews || 0;
+  const breakdownMap = {};
+  breakdown.forEach(b=>breakdownMap[b.rating]=b.count);
+
+  document.getElementById('pageWrap').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-top">
+        <div class="profile-avatar-xl">${user.name.charAt(0)}</div>
+        <div>
+          <div class="profile-name">${user.name}</div>
+          <div class="profile-farm">${profile?.farm_name||''} · ${profile?.farm_location||user.county}</div>
+          ${user.is_verified?'<div class="profile-verified">✓ Verified Farmer</div>':''}
+        </div>
+        ${user.bio?`<p style="color:rgba(250,245,236,0.55);font-size:0.88rem;font-weight:300;max-width:400px;margin-top:0.5rem;line-height:1.6">${user.bio}</p>`:''}
+      </div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-num">${profile?.total_sales||0}</div><div class="pstat-label">Total Sales</div></div>
+        <div class="pstat"><div class="pstat-num">${listings.length}</div><div class="pstat-label">Active Listings</div></div>
+        <div class="pstat"><div class="pstat-num">${totalRev}</div><div class="pstat-label">Reviews</div></div>
+        ${agg.avg_rating?`<div class="pstat"><div class="pstat-num">${Number(agg.avg_rating).toFixed(1)} ★</div><div class="pstat-label">Avg Rating</div></div>`:''}
+        <div class="pstat"><div class="pstat-num">${fmtDate(user.created_at)}</div><div class="pstat-label">Member Since</div></div>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div>
+        ${listings.length ? `
+        <div style="margin-bottom:2.5rem">
+          <div class="eyebrow" style="margin-bottom:1rem">Active Listings</div>
+          <div class="grid-3">
+            ${listings.slice(0,9).map(l=>`
+              <div class="card listing-card" onclick="window.location.href='/pages/browse.html'">
+                <div class="listing-img">${CAT_EMOJI[l.category]||'🌿'}${l.is_organic?'<span class="listing-organic">ORGANIC</span>':''}</div>
+                <div class="card-body">
+                  <div class="listing-title">${l.title}</div>
+                  <div class="listing-meta"><span>${l.county}</span><span>·</span><span>${l.quantity} ${l.unit} avail.</span></div>
+                  <div class="listing-price">KSh ${fmtPrice(l.price_per_unit)}<span class="listing-price-unit">/${l.unit}</span></div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+
+        ${reviews.length ? `
+        <div>
+          <div class="eyebrow" style="margin-bottom:1rem">Reviews (${totalRev})</div>
+          ${reviews.map(r=>`
+            <div class="review-card-pub">
+              <div class="reviewer-row">
+                <div class="reviewer-avatar">${(r.reviewer_name||'?').charAt(0)}</div>
+                <div style="flex:1"><div style="font-weight:600;font-size:0.88rem;color:var(--earth)">${r.reviewer_name||'Anonymous'}</div>
+                <div style="font-size:0.72rem;color:var(--subtext)">${fmtDate(r.created_at)}</div></div>
+                <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+              </div>
+              ${r.comment?`<p class="review-comment">${r.comment}</p>`:''}
+              ${r.reply?`<div class="review-reply"><strong>Reply from ${user.name}:</strong> ${r.reply}</div>`:''}
+            </div>`).join('')}
+        </div>` : `<div class="empty-state"><div class="icon">⭐</div><h3>No reviews yet</h3></div>`}
+      </div>
+
+      <div>
+        ${totalRev > 0 ? `
+        <div class="rating-breakdown">
+          <div style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:var(--earth);line-height:1">${Number(agg.avg_rating||0).toFixed(1)}</div>
+          <div style="color:var(--harvest);font-size:1rem;margin:0.25rem 0">${stars(agg.avg_rating||0)}</div>
+          <div style="font-size:0.78rem;color:var(--subtext);margin-bottom:1rem">${totalRev} review${totalRev!==1?'s':''}</div>
+          ${[5,4,3,2,1].map(n=>{const cnt=breakdownMap[n]||0;const pct=totalRev?Math.round(cnt/totalRev*100):0;return`<div class="rb-row"><span class="rb-label">${n}</span><div class="rb-bar-wrap"><div class="rb-bar" style="width:${pct}%"></div></div><span style="font-size:0.72rem;color:var(--subtext);width:28px;text-align:right">${cnt}</span></div>`;}).join('')}
+        </div>` : ''}
+
+        ${profile?.produce_types ? `
+        <div style="background:white;border-radius:var(--radius-lg);border:1px solid rgba(92,51,23,0.08);padding:1.5rem;margin-bottom:1.5rem">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--subtext);margin-bottom:0.75rem">Grows</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+            ${profile.produce_types.split(',').map(t=>`<span style="background:var(--sky);color:var(--leaf);padding:0.25rem 0.75rem;border-radius:100px;font-size:0.78rem;font-weight:600">${CAT_EMOJI[t.trim()]||''} ${t.trim()}</span>`).join('')}
+          </div>
+        </div>` : ''}
+
+        <div class="contact-card">
+          <h4>Contact ${user.name.split(' ')[0]}</h4>
+          <a href="/pages/browse.html?category=${category_stats?.[0]?.category||''}" class="contact-btn contact-primary">Browse Their Listings</a>
+          ${getUser() && getUser().role==='buyer' ? `<button class="contact-btn contact-outline" onclick="toast('Messaging coming soon!','default')">💬 Send Message</button>` : `<a href="/pages/login.html" class="contact-btn contact-outline">Sign in to Contact</a>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+loadProfile();
+</script>
+</body>
+</html>

@@ -520,10 +520,10 @@
 <nav id="mainNav">
   <a href="#" class="logo">Farm<span>Ad</span></a>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#how">How It Works</a></li>
-    <li><a href="#listings">Browse</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#" class="nav-cta" onclick="openModal('login');return false;">Sign In</a></li>
+    <li><a href="/#how">How It Works</a></li>
+    <li><a href="/pages/browse.html">Browse</a></li>
+    <li><a href="/#features">Features</a></li>
+    <li><a href="/pages/login.html" class="nav-cta">Sign In</a></li>
   </ul>
 </nav>
 
@@ -597,7 +597,7 @@
       <div class="section-eyebrow">Browse Categories</div>
       <h2 class="section-title">What's <em>Fresh</em> Right Now</h2>
     </div>
-    <a href="#listings" class="view-all">View all listings →</a>
+    <a href="/pages/browse.html" class="view-all">View all listings →</a>
   </div>
   <div class="categories-grid" id="categoriesGrid">
     <div class="cat-card" onclick="filterByCategory('vegetables')"><div class="cat-bg">🥬</div><div class="cat-overlay"><div class="cat-name">Vegetables</div><div class="cat-count" id="cat-vegetables">Loading…</div></div></div>
@@ -677,8 +677,8 @@
   <h2 class="cta-title">Ready to <em>Transform</em><br>Your Farm's Future?</h2>
   <p class="cta-sub">Join Kenya's fastest-growing agricultural marketplace. Free to join — always.</p>
   <div class="cta-buttons">
-    <a href="#" class="btn-white" id="ctaFarmer">Register as Farmer</a>
-    <a href="#" class="btn-ghost" id="ctaBuyer">I'm a Buyer</a>
+    <a href="#" class="btn-white" id="ctaFarmer" href="/pages/login.html#register">Register as Farmer</a>
+    <a href="#" class="btn-ghost" id="ctaBuyer" href="/pages/login.html#register">I'm a Buyer</a>
   </div>
 </section>
 
@@ -686,8 +686,8 @@
 <footer>
   <div class="footer-grid">
     <div class="footer-brand"><a href="#" class="logo">Farm<span>Ad</span></a><p class="footer-tagline">Connecting Kenya's farmers to buyers — fairly, directly, and efficiently. Grown in Kenya, built for Kenya.</p></div>
-    <div class="footer-col"><h4>For Farmers</h4><ul><li><a href="#">List Produce</a></li><li><a href="#">Pricing Guide</a></li><li><a href="#">Farmer App</a></li><li><a href="#">SMS Access</a></li><li><a href="#">Training</a></li></ul></div>
-    <div class="footer-col"><h4>For Buyers</h4><ul><li><a href="#">Browse Listings</a></li><li><a href="#">Bulk Orders</a></li><li><a href="#">Export Buyers</a></li><li><a href="#">Supermarkets</a></li><li><a href="#">Restaurants</a></li></ul></div>
+    <div class="footer-col"><h4>For Farmers</h4><ul><li><a href="/pages/my-listings.html">List Produce</a></li><li><a href="#">Pricing Guide</a></li><li><a href="#">Farmer App</a></li><li><a href="#">SMS Access</a></li><li><a href="#">Training</a></li></ul></div>
+    <div class="footer-col"><h4>For Buyers</h4><ul><li><a href="/pages/browse.html">Browse Listings</a></li><li><a href="#">Bulk Orders</a></li><li><a href="#">Export Buyers</a></li><li><a href="#">Supermarkets</a></li><li><a href="#">Restaurants</a></li></ul></div>
     <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Our Mission</a></li><li><a href="#">Press</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
   </div>
   <div class="footer-bottom">
@@ -915,7 +915,7 @@
 </div>
 
 <script>
-const API = 'farmad.up.railway.app';
+const API = window.location.origin + '/api';
 let currentRole = 'farmer';
 let listingsPage = 1;
 let listingsCategory = null;
@@ -986,21 +986,21 @@ function updateNav() {
     const init = user.name.charAt(0).toUpperCase();
     const isFarmer = user.role === 'farmer';
     nav.innerHTML = `
-      <li><a href="#listings">Browse</a></li>
-      <li><a href="#prices">Prices</a></li>
+      <li><a href="/pages/browse.html">Browse</a></li>
+      <li><a href="/pages/prices.html">Prices</a></li>
       ${isFarmer ? `<li><a href="#" class="nav-cta" onclick="openCreateListing();return false;">+ Post Listing</a></li>` : ''}
       <li class="nav-user">
         <div class="nav-avatar" title="${user.name}">${init}</div>
         <span class="nav-username">${user.name.split(' ')[0]}</span>
-        <button class="nav-dash-btn" onclick="openDashboard()">Dashboard</button>
+        <button class="nav-dash-btn" href="/pages/dashboard.html" class="nav-dash-btn">Dashboard</button>
         <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
       </li>`;
   } else {
     nav.innerHTML = `
-      <li><a href="#how">How It Works</a></li>
-      <li><a href="#listings">Browse</a></li>
-      <li><a href="#prices">Prices</a></li>
-      <li><a href="#" class="nav-cta" onclick="openModal('login');return false;">Sign In</a></li>`;
+      <li><a href="/#how">How It Works</a></li>
+      <li><a href="/pages/browse.html">Browse</a></li>
+      <li><a href="/pages/prices.html">Prices</a></li>
+      <li><a href="/pages/login.html" class="nav-cta">Sign In</a></li>`;
   }
 }
 
@@ -1877,7 +1877,7 @@ document.getElementById('searchOverlay').addEventListener('click', function(e) {
 
 // Also trigger search from the nav "Browse" link
 document.addEventListener('click', e => {
-  if (e.target.matches('a[href="#listings"]')) {
+  if (e.target.matches('a[href="/pages/browse.html"]')) {
     // Allow normal anchor but also make the Find Produce btn open search
   }
 });

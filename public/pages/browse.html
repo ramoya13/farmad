@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Browse Produce — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.browse-layout { display:grid; grid-template-columns:260px 1fr; gap:2rem; padding:2.5rem 6vw; align-items:start; }
+.sidebar { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.5rem; position:sticky; top:88px; }
+.sidebar h3 { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900; color:var(--earth); margin-bottom:1.25rem; }
+.filter-section { margin-bottom:1.5rem; }
+.filter-section label { font-size:0.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--subtext); display:block; margin-bottom:0.6rem; }
+.filter-section select, .filter-section input[type=number] { width:100%; padding:0.6rem 0.85rem; border:1.5px solid rgba(92,51,23,0.18); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.85rem; outline:none; background:var(--cream); }
+.filter-section select:focus, .filter-section input:focus { border-color:var(--leaf); }
+.cat-pills { display:flex; flex-direction:column; gap:0.4rem; }
+.cat-pill { padding:0.5rem 0.85rem; border-radius:10px; border:none; background:transparent; text-align:left; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:500; color:var(--subtext); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:0.6rem; }
+.cat-pill:hover { background:var(--sky); color:var(--leaf); }
+.cat-pill.active { background:var(--sky); color:var(--leaf); font-weight:700; }
+.clear-filters { width:100%; padding:0.55rem; background:var(--mist); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; color:var(--subtext); cursor:pointer; margin-top:0.5rem; transition:background 0.2s; }
+.clear-filters:hover { background:#e0d8c8; }
+
+.browse-main {}
+.browse-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
+.browse-search { flex:1; min-width:200px; display:flex; align-items:center; gap:0.6rem; background:white; border:1.5px solid rgba(92,51,23,0.18); border-radius:100px; padding:0.6rem 1.2rem; }
+.browse-search input { border:none; outline:none; font-family:'DM Sans',sans-serif; font-size:0.9rem; background:transparent; flex:1; color:var(--text); }
+.browse-search input::placeholder { color:rgba(107,82,64,0.4); }
+.sort-select { padding:0.6rem 1rem; border:1.5px solid rgba(92,51,23,0.18); border-radius:100px; font-family:'DM Sans',sans-serif; font-size:0.82rem; outline:none; background:white; cursor:pointer; }
+
+.listings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1.25rem; }
+.result-count { font-size:0.82rem; color:var(--subtext); margin-bottom:1rem; }
+.load-more-wrap { text-align:center; margin-top:2.5rem; }
+.btn-load-more { background:white; color:var(--earth); border:1.5px solid rgba(45,27,14,0.2); padding:0.75rem 2.5rem; border-radius:100px; font-weight:600; font-size:0.88rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.btn-load-more:hover { border-color:var(--leaf); color:var(--leaf); }
+
+/* Listing detail modal */
+.ld-overlay { display:none; position:fixed; inset:0; background:rgba(45,27,14,0.6); backdrop-filter:blur(6px); z-index:600; align-items:center; justify-content:center; padding:1rem; }
+.ld-overlay.open { display:flex; }
+.ld-box { background:white; border-radius:28px; max-width:620px; width:100%; max-height:90vh; overflow-y:auto; position:relative; animation:modalIn 0.3s ease; }
+.ld-hero { height:190px; background:linear-gradient(135deg,var(--sky),var(--mist)); display:flex; align-items:center; justify-content:center; font-size:7rem; border-radius:28px 28px 0 0; }
+.ld-body { padding:1.75rem; }
+.ld-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:var(--earth); margin-bottom:0.4rem; }
+.ld-meta { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+.meta-tag { background:var(--mist); color:var(--subtext); padding:0.2rem 0.7rem; border-radius:100px; font-size:0.72rem; font-weight:600; }
+.ld-price { font-size:2rem; font-weight:900; color:var(--leaf); font-family:'Playfair Display',serif; margin-bottom:1.25rem; }
+.ld-close { position:absolute; top:0.85rem; right:0.85rem; background:white; border:none; border-radius:50%; width:34px; height:34px; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,0.15); z-index:1; }
+.qty-row { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+.qty-input { width:95px; padding:0.55rem 0.7rem; border:1.5px solid rgba(92,51,23,0.2); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:1rem; text-align:center; outline:none; }
+.qty-input:focus { border-color:var(--leaf); }
+.btn-order { background:var(--leaf); color:white; border:none; border-radius:14px; padding:0.9rem 2rem; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; width:100%; transition:background 0.2s; }
+.btn-order:hover { background:#2d6122; }
+.btn-order:disabled { opacity:0.6; cursor:not-allowed; }
+.farmer-card { display:flex; align-items:center; gap:0.75rem; background:var(--cream); border-radius:14px; padding:1rem; margin-top:1.25rem; cursor:pointer; transition:background 0.2s; }
+.farmer-card:hover { background:var(--mist); }
+.farmer-avatar-lg { width:42px; height:42px; border-radius:50%; background:var(--leaf); color:white; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0; }
+
+@media(max-width:800px) {
+  .browse-layout { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="eyebrow">Marketplace</div>
+    <h1>Browse <em>Fresh Produce</em></h1>
+    <p>Direct from farmers across all 47 counties — no middlemen.</p>
+  </div>
+
+  <div class="browse-layout">
+    <!-- Sidebar filters -->
+    <aside class="sidebar">
+      <h3>Filters</h3>
+      <div class="filter-section">
+        <label>Category</label>
+        <div class="cat-pills" id="catPills">
+          <button class="cat-pill active" data-cat="" onclick="setCategory('',this)">🌿 All Categories</button>
+          <button class="cat-pill" data-cat="vegetables" onclick="setCategory('vegetables',this)">🥬 Vegetables</button>
+          <button class="cat-pill" data-cat="fruits" onclick="setCategory('fruits',this)">🍎 Fruits</button>
+          <button class="cat-pill" data-cat="grains" onclick="setCategory('grains',this)">🌾 Grains</button>
+          <button class="cat-pill" data-cat="dairy" onclick="setCategory('dairy',this)">🥛 Dairy & Eggs</button>
+          <button class="cat-pill" data-cat="legumes" onclick="setCategory('legumes',this)">🫘 Legumes</button>
+          <button class="cat-pill" data-cat="livestock" onclick="setCategory('livestock',this)">🐄 Livestock</button>
+          <button class="cat-pill" data-cat="other" onclick="setCategory('other',this)">🌿 Other</button>
+        </div>
+      </div>
+      <div class="filter-section">
+        <label>County</label>
+        <select id="filterCounty" onchange="applyFilters()">
+          <option value="">All Counties</option>
+        </select>
+      </div>
+      <div class="filter-section">
+        <label>Price Range (KSh/unit)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+          <input type="number" id="minPrice" placeholder="Min" oninput="applyFilters()" style="border-radius:10px">
+          <input type="number" id="maxPrice" placeholder="Max" oninput="applyFilters()" style="border-radius:10px">
+        </div>
+      </div>
+      <div class="filter-section">
+        <label>Organic only</label>
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.88rem;font-weight:400;letter-spacing:0">
+          <input type="checkbox" id="organicOnly" onchange="applyFilters()" style="accent-color:var(--leaf);width:auto"> Show organic only
+        </label>
+      </div>
+      <button class="clear-filters" onclick="clearFilters()">✕ Clear All Filters</button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="browse-main">
+      <div class="browse-top">
+        <div class="browse-search">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="Search tomatoes, maize, avocados…" oninput="onSearch(this.value)">
+        </div>
+        <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+          <option value="created_at">Newest First</option>
+          <option value="price_asc">Price: Low → High</option>
+          <option value="price_desc">Price: High → Low</option>
+          <option value="views">Most Viewed</option>
+        </select>
+      </div>
+      <div class="result-count" id="resultCount"></div>
+      <div class="listings-grid" id="listingsGrid"></div>
+      <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+        <button class="btn-load-more" onclick="loadMore()">Load More</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Listing detail modal -->
+<div class="ld-overlay" id="ldOverlay" onclick="if(event.target===this)closeLd()">
+  <div class="ld-box" id="ldBox"></div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+let page=1, hasMore=false, activeCategory='', searchDebounce=null;
+const filters = { category:'', county:'', min_price:'', max_price:'', organic:'', sort:'created_at', order:'desc', q:'' };
+
+// Populate county select
+document.getElementById('filterCounty').innerHTML = '<option value="">All Counties</option>' + COUNTIES.map(c=>`<option>${c}</option>`).join('');
+
+// Read ?category= from URL
+const urlCat = new URLSearchParams(window.location.search).get('category') || '';
+if (urlCat) { filters.category = urlCat; document.querySelector(`.cat-pill[data-cat="${urlCat}"]`)?.classList.add('active'); document.querySelector('.cat-pill[data-cat=""]')?.classList.remove('active'); }
+
+async function loadListings(reset=true) {
+  if (reset) { page=1; }
+  const grid = document.getElementById('listingsGrid');
+  if (reset) grid.innerHTML = Array(8).fill(`<div class="skeleton" style="height:260px;border-radius:20px"></div>`).join('');
+
+  const p = new URLSearchParams({ limit:12, page, sort:filters.sort==='price_asc'?'price_per_unit':'price_per_unit'===filters.sort?'price_per_unit':filters.sort, order:filters.sort==='price_asc'?'asc':filters.sort==='price_desc'?'desc':filters.order, status:'active' });
+  if (filters.category) p.set('category',filters.category);
+  if (filters.county)   p.set('county',filters.county);
+  if (filters.min_price) p.set('min_price',filters.min_price);
+  if (filters.max_price) p.set('max_price',filters.max_price);
+  if (filters.organic)  p.set('is_organic','1');
+  if (filters.q)        p.set('q',filters.q);
+  // handle sort
+  if (filters.sort==='price_asc')  { p.set('sort','price_per_unit'); p.set('order','asc'); }
+  else if (filters.sort==='price_desc') { p.set('sort','price_per_unit'); p.set('order','desc'); }
+  else if (filters.sort==='views') { p.set('sort','views'); p.set('order','desc'); }
+  else                              { p.set('sort','created_at'); p.set('order','desc'); }
+
+  const { ok, data } = await apiFetch(`/listings?${p}`);
+  if (!ok || !data.data?.listings) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🌾</div><h3>No listings found</h3><p>Try adjusting your filters</p></div>`;
+    return;
+  }
+  const listings = data.data.listings;
+  const { total, limit } = data.data.pagination;
+  document.getElementById('resultCount').textContent = `${total} listing${total!==1?'s':''} found`;
+  const html = listings.map(l => buildCard(l)).join('');
+  if (reset) grid.innerHTML = html; else grid.insertAdjacentHTML('beforeend', html);
+  hasMore = page * limit < total;
+  document.getElementById('loadMoreWrap').style.display = hasMore ? 'block' : 'none';
+}
+
+function buildCard(l) {
+  return `<div class="card listing-card" onclick="openLd('${l.id}')">
+    <div class="listing-img">${CAT_EMOJI[l.category]||'🌿'}${l.is_organic?'<span class="listing-organic">ORGANIC</span>':''}</div>
+    <div class="card-body">
+      <div class="listing-title">${l.title}</div>
+      <div class="listing-meta"><span>📍 ${l.county}</span><span>·</span><span>${l.category}</span>${l.views?`<span>·</span><span>👁 ${l.views}</span>`:''}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div><div class="listing-price">KSh ${fmtPrice(l.price_per_unit)}<span class="listing-price-unit">/${l.unit}</span></div>
+        <div class="listing-qty">Qty: ${l.quantity} ${l.unit}</div></div>
+      </div>
+      <div class="farmer-row">
+        <div class="farmer-avatar-sm">${(l.farmer_name||'F').charAt(0)}</div>
+        <span class="farmer-name-sm">${l.farmer_name||'Local Farmer'}</span>
+        ${l.farmer_rating?`<span class="farmer-rating-sm">${stars(l.farmer_rating)}</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function setCategory(cat, btn) {
+  filters.category = cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  loadListings();
+}
+
+function applyFilters() {
+  filters.county    = document.getElementById('filterCounty').value;
+  filters.min_price = document.getElementById('minPrice').value;
+  filters.max_price = document.getElementById('maxPrice').value;
+  filters.organic   = document.getElementById('organicOnly').checked ? '1' : '';
+  filters.sort      = document.getElementById('sortSelect').value;
+  loadListings();
+}
+
+function onSearch(val) {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => { filters.q = val.trim(); loadListings(); }, 280);
+}
+
+function loadMore() { if (!hasMore) return; page++; loadListings(false); }
+
+function clearFilters() {
+  filters.category=filters.county=filters.min_price=filters.max_price=filters.organic=filters.q='';
+  filters.sort='created_at'; filters.order='desc';
+  document.getElementById('filterCounty').value='';
+  document.getElementById('minPrice').value='';
+  document.getElementById('maxPrice').value='';
+  document.getElementById('organicOnly').checked=false;
+  document.getElementById('sortSelect').value='created_at';
+  document.getElementById('searchInput').value='';
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.cat-pill[data-cat=""]').classList.add('active');
+  loadListings();
+}
+
+// Listing detail
+async function openLd(id) {
+  const overlay = document.getElementById('ldOverlay');
+  const box = document.getElementById('ldBox');
+  box.innerHTML = `<div style="padding:3rem;text-align:center;font-size:2.5rem">🌱</div>`;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+  const { ok, data } = await apiFetch(`/listings/${id}`);
+  if (!ok) { box.innerHTML='<div style="padding:2rem">Failed to load.</div>'; return; }
+  const l = data.data.listing;
+  const user = getUser();
+  box.innerHTML = `
+    <button class="ld-close" onclick="closeLd()">✕</button>
+    <div class="ld-hero">${CAT_EMOJI[l.category]||'🌿'}</div>
+    <div class="ld-body">
+      <div class="ld-title">${l.title}</div>
+      <div class="ld-meta">
+        <span class="meta-tag">📍 ${l.location}, ${l.county}</span>
+        <span class="meta-tag">${l.category}</span>
+        ${l.is_organic?'<span class="meta-tag" style="background:var(--sky);color:var(--leaf)">✅ Organic</span>':''}
+        ${l.harvest_date?`<span class="meta-tag">🌾 ${fmtDate(l.harvest_date)}</span>`:''}
+      </div>
+      ${l.description?`<p style="color:var(--subtext);font-size:0.9rem;line-height:1.7;margin-bottom:1rem;font-weight:300">${l.description}</p>`:''}
+      <div class="ld-price">KSh ${fmtPrice(l.price_per_unit)} <span style="font-size:0.95rem;font-family:'DM Sans';font-weight:400;color:var(--subtext)">per ${l.unit}</span></div>
+      <p style="font-size:0.82rem;color:var(--subtext);margin-bottom:1.25rem">Available: <strong>${l.quantity} ${l.unit}</strong> · Min order: <strong>${l.min_order_qty} ${l.unit}</strong> · 👁 ${l.views} views</p>
+      ${user && user.role==='buyer' ? `
+        <div class="qty-row">
+          <div><label style="font-size:0.78rem;font-weight:600;color:var(--earth);display:block;margin-bottom:0.25rem">Quantity (${l.unit})</label>
+          <input class="qty-input" type="number" id="ldQty" value="${l.min_order_qty}" min="${l.min_order_qty}" max="${l.quantity}" oninput="calcTotal(${l.price_per_unit},'${l.unit}')"></div>
+          <div><div style="font-size:0.78rem;font-weight:600;color:var(--earth);margin-bottom:0.25rem">Total</div><div id="ldTotal" style="font-weight:700;color:var(--earth)">KSh ${fmtPrice(l.min_order_qty*l.price_per_unit)}</div></div>
+        </div>
+        <button class="btn-order" id="btnOrder" onclick="placeOrder('${l.id}',${l.price_per_unit},'${l.unit}')">🛒 Place Order via M-Pesa</button>
+      ` : `<div style="background:var(--mist);border-radius:14px;padding:1.25rem;text-align:center;margin-bottom:1rem">
+        <p style="color:var(--subtext);font-size:0.88rem;margin-bottom:0.75rem">${user?'Only buyers can place orders.':'Sign in as a buyer to order.'}</p>
+        ${!user?`<a href="/pages/login.html" class="btn btn-primary btn-sm">Sign In to Order</a>`:''}
+      </div>`}
+      <div class="farmer-card" onclick="window.location.href='/pages/farmer.html?id=${l.farmer_id}'">
+        <div class="farmer-avatar-lg">${(l.farmer_name||'F').charAt(0)}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--earth);font-size:0.92rem">${l.farmer_name||'Farmer'}</div>
+          <div style="font-size:0.75rem;color:var(--subtext)">${l.farm_name?l.farm_name+' · ':''}${l.county}</div>
+          ${l.farmer_rating?`<div style="color:var(--harvest);font-size:0.82rem">${stars(l.farmer_rating)} ${Number(l.farmer_rating).toFixed(1)}</div>`:''}
+        </div>
+        <span style="font-size:0.8rem;color:var(--leaf)">View profile →</span>
+      </div>
+    </div>`;
+}
+
+function closeLd() { document.getElementById('ldOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function calcTotal(ppu,unit) { const q=parseFloat(document.getElementById('ldQty')?.value)||0; const el=document.getElementById('ldTotal'); if(el) el.textContent=`KSh ${fmtPrice(q*ppu)}`; }
+
+async function placeOrder(listingId, ppu, unit) {
+  const btn=document.getElementById('btnOrder');
+  const qty=parseFloat(document.getElementById('ldQty')?.value);
+  if (!qty||qty<=0) { toast('Enter a valid quantity','error'); return; }
+  btn.disabled=true; btn.textContent='Placing order…';
+  const { ok, data } = await apiFetch('/orders', { method:'POST', body: JSON.stringify({ items:[{listing_id:listingId,quantity:qty}], delivery_type:'pickup' }) });
+  if (!ok) { toast(data.message||'Order failed','error'); btn.disabled=false; btn.textContent='🛒 Place Order via M-Pesa'; return; }
+  toast(`Order placed! KSh ${fmtPrice(qty*ppu)} — awaiting confirmation 🎉','success',5000`);
+  closeLd();
+}
+
+loadListings();
+</script>
+</body>
+</html>

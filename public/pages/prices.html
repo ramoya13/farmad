@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Market Prices — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.prices-page { background:var(--earth); min-height:100vh; padding-top:72px; }
+.prices-controls { padding:2rem 6vw 1.5rem; border-bottom:1px solid rgba(255,255,255,0.08); }
+.prices-controls h1 { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.5rem); font-weight:900; color:var(--cream); margin-bottom:0.25rem; }
+.prices-controls h1 em { color:var(--harvest); font-style:italic; }
+.prices-controls p { color:rgba(250,245,236,0.5); font-size:0.88rem; font-weight:300; margin-bottom:1.25rem; }
+.county-pills { display:flex; gap:0.5rem; flex-wrap:wrap; }
+.cpill { padding:0.4rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.55); font-size:0.78rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.cpill.active { background:var(--harvest); border-color:var(--harvest); color:var(--earth); }
+.cpill:hover:not(.active) { border-color:rgba(255,255,255,0.4); color:rgba(255,255,255,0.8); }
+
+.cat-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; padding:1.25rem 6vw 0; }
+.ctab { padding:0.4rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.45); font-size:0.75rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.ctab.active { background:rgba(255,255,255,0.12); color:var(--cream); border-color:rgba(255,255,255,0.25); }
+.ctab:hover:not(.active) { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+
+.prices-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; padding:1.5rem 6vw; }
+.price-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:1.3rem; cursor:pointer; transition:background 0.2s; }
+.price-card:hover { background:rgba(255,255,255,0.1); }
+.pc-crop { font-weight:700; color:var(--cream); font-size:0.95rem; margin-bottom:0.15rem; }
+.pc-market { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-bottom:0.65rem; }
+.pc-price { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:900; color:var(--harvest); line-height:1; }
+.pc-unit { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-left:0.2rem; }
+.pc-range { font-size:0.7rem; color:rgba(250,245,236,0.4); margin-top:0.25rem; }
+.pc-trend-up   { color:#4ade80; font-size:0.75rem; font-weight:600; }
+.pc-trend-down { color:#f87171; font-size:0.75rem; font-weight:600; }
+.pc-trend-flat { color:rgba(255,255,255,0.3); font-size:0.75rem; }
+
+/* Detail panel */
+.detail-panel { background:rgba(0,0,0,0.3); border-top:1px solid rgba(255,255,255,0.08); padding:2rem 6vw; display:none; }
+.detail-panel.open { display:block; }
+.dp-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; }
+.dp-title { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--cream); }
+.dp-close { background:rgba(255,255,255,0.1); border:none; color:var(--cream); border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; }
+.dp-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+.dp-stat { background:rgba(255,255,255,0.06); border-radius:14px; padding:1rem; }
+.dp-stat-num { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--harvest); }
+.dp-stat-label { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-top:0.2rem; }
+.history-bars { display:flex; align-items:flex-end; gap:6px; height:80px; }
+.bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+.bar { background:rgba(232,160,32,0.6); border-radius:4px 4px 0 0; width:100%; transition:background 0.2s; }
+.bar:hover { background:var(--harvest); }
+.bar-label { font-size:0.6rem; color:rgba(250,245,236,0.35); white-space:nowrap; }
+.nearby-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:0.75rem; margin-top:1rem; }
+.nearby-item { background:rgba(255,255,255,0.05); border-radius:12px; padding:0.85rem; display:flex; align-items:center; gap:0.75rem; cursor:pointer; }
+.nearby-item:hover { background:rgba(255,255,255,0.09); }
+
+@media(max-width:700px) { .dp-stats { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<nav id="mainNav" style="background:rgba(45,27,14,0.95)">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="prices-page">
+  <div class="prices-controls">
+    <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--harvest);margin-bottom:0.4rem">Market Intelligence</div>
+    <h1>Live Market <em>Prices</em></h1>
+    <p>Real-time price data from major markets across Kenya</p>
+    <div class="county-pills" id="countyPills"></div>
+  </div>
+
+  <div class="cat-tabs" id="catTabs">
+    <button class="ctab active" data-cat="" onclick="setCat('',this)">All</button>
+    <button class="ctab" data-cat="vegetables" onclick="setCat('vegetables',this)">🥬 Vegetables</button>
+    <button class="ctab" data-cat="fruits" onclick="setCat('fruits',this)">🍎 Fruits</button>
+    <button class="ctab" data-cat="grains" onclick="setCat('grains',this)">🌾 Grains</button>
+    <button class="ctab" data-cat="dairy" onclick="setCat('dairy',this)">🥛 Dairy</button>
+    <button class="ctab" data-cat="legumes" onclick="setCat('legumes',this)">🫘 Legumes</button>
+  </div>
+
+  <div class="prices-grid" id="pricesGrid">
+    ${Array(12).fill(`<div class="skeleton" style="height:120px;border-radius:18px;background:rgba(255,255,255,0.06)"></div>`).join('')}
+  </div>
+
+  <div class="detail-panel" id="detailPanel">
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const TOP_COUNTIES = ['Nairobi','Kiambu','Nakuru','Mombasa','Kisumu','Embu','Meru','Uasin Gishu','Muranga'];
+let activeCounty = 'Nairobi', activeCat = '';
+
+// Build county pills
+document.getElementById('countyPills').innerHTML = TOP_COUNTIES.map(c =>
+  `<button class="cpill${c===activeCounty?' active':''}" onclick="setCounty('${c}',this)">${c}</button>`
+).join('');
+
+async function loadPrices() {
+  const grid = document.getElementById('pricesGrid');
+  grid.innerHTML = Array(10).fill(`<div class="skeleton" style="height:120px;border-radius:18px;background:rgba(255,255,255,0.06)"></div>`).join('');
+  const p = new URLSearchParams({ county:activeCounty, limit:40 });
+  if (activeCat) p.set('category',activeCat);
+  const { ok, data } = await apiFetch(`/prices?${p}`);
+  if (!ok || !data.data?.prices?.length) {
+    grid.innerHTML=`<div style="color:rgba(250,245,236,0.4);padding:3rem;grid-column:1/-1;text-align:center">No price data for ${activeCounty} yet.</div>`;
+    return;
+  }
+  grid.innerHTML = data.data.prices.map(p => buildPriceCard(p)).join('');
+}
+
+function buildPriceCard(p) {
+  const trendIcon = p.trend==='up' ? `<span class="pc-trend-up">▲ ${p.trend_pct}%</span>`
+                  : p.trend==='down' ? `<span class="pc-trend-down">▼ ${Math.abs(p.trend_pct)}%</span>`
+                  : `<span class="pc-trend-flat">— stable</span>`;
+  return `<div class="price-card" onclick="openDetail('${encodeURIComponent(p.crop)}','${p.county}')">
+    <div class="pc-crop">${p.crop}</div>
+    <div class="pc-market">${p.market_name||p.county}</div>
+    <div><span class="pc-price">KSh ${fmtPrice(p.price_avg)}</span><span class="pc-unit">/${p.unit}</span></div>
+    <div class="pc-range">KSh ${fmtPrice(p.price_low)} – ${fmtPrice(p.price_high)}</div>
+    <div style="margin-top:0.4rem">${trendIcon}</div>
+  </div>`;
+}
+
+async function openDetail(encodedCrop, county) {
+  const crop = decodeURIComponent(encodedCrop);
+  const panel = document.getElementById('detailPanel');
+  const content = document.getElementById('detailContent');
+  panel.classList.add('open');
+  content.innerHTML = `<div style="color:rgba(250,245,236,0.4);padding:2rem;text-align:center">Loading…</div>`;
+  panel.scrollIntoView({ behavior:'smooth' });
+  const { ok, data } = await apiFetch(`/prices/${encodedCrop}/${encodeURIComponent(county)}`);
+  if (!ok) { content.innerHTML='<p style="color:rgba(250,245,236,0.4)">Could not load detail.</p>'; return; }
+  const d = data.data;
+  const c = d.current;
+  const hist = d.history || [];
+  const maxBar = Math.max(...hist.map(h=>parseFloat(h.price_avg)),1);
+
+  content.innerHTML = `
+    <div class="dp-header">
+      <div>
+        <div class="dp-title">${c.crop}</div>
+        <div style="font-size:0.8rem;color:rgba(250,245,236,0.45)">${c.market_name||county} · Updated ${fmtDate(c.price_date)}</div>
+      </div>
+      <button class="dp-close" onclick="document.getElementById('detailPanel').classList.remove('open')">✕ Close</button>
+    </div>
+    <div class="dp-stats">
+      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_avg)}</div><div class="dp-stat-label">Average Price / ${c.unit}</div></div>
+      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_low)}</div><div class="dp-stat-label">Lowest / ${c.unit}</div></div>
+      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_high)}</div><div class="dp-stat-label">Highest / ${c.unit}</div></div>
+      <div class="dp-stat"><div class="dp-stat-num">${d.insights?.vs_national_label||'—'}</div><div class="dp-stat-label">vs National Avg</div></div>
+    </div>
+    ${hist.length ? `
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,245,236,0.35);margin-bottom:0.75rem">12-Week Price History</div>
+      <div class="history-bars">
+        ${hist.map(h=>{const pct=Math.round((parseFloat(h.price_avg)/maxBar)*100);return`<div class="bar-wrap"><div class="bar" style="height:${pct}%" title="KSh ${h.price_avg}"></div><div class="bar-label">${h.week_start?.slice(5)}</div></div>`;}).join('')}
+      </div>
+    </div>` : ''}
+    ${d.nearby_listings?.length ? `
+    <div>
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,245,236,0.35);margin-bottom:0.75rem">Active Listings Nearby</div>
+      <div class="nearby-grid">
+        ${d.nearby_listings.map(l=>`<div class="nearby-item" onclick="window.location.href='/pages/browse.html'">
+          <div style="font-size:1.5rem">${CAT_EMOJI.vegetables}</div>
+          <div><div style="font-size:0.85rem;font-weight:600;color:var(--cream)">${l.title}</div>
+          <div style="font-size:0.72rem;color:rgba(250,245,236,0.45)">${l.farmer_name} · KSh ${fmtPrice(l.price_per_unit)}/${l.unit}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}`;
+}
+
+function setCounty(c, btn) {
+  activeCounty = c;
+  document.querySelectorAll('.cpill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('detailPanel').classList.remove('open');
+  loadPrices();
+}
+
+function setCat(c, btn) {
+  activeCat = c;
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPrices();
+}
+
+loadPrices();
+</script>
+</body>
+</html>
