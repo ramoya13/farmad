@@ -344,7 +344,7 @@ async function saveProfile() {
   if (ok) {
     setBtnSaved('profileBtn', 'Save Profile');
     const stored = getUser();
-    if (stored) { Object.assign(stored, body); sessionStorage.setItem('farmad_user', JSON.stringify(stored)); updateNav(); }
+    if (stored) { Object.assign(stored, body); localStorage.setItem('farmad_user', JSON.stringify(stored)); updateNav(); }
     document.getElementById('heroName').textContent = body.name;
     document.getElementById('heroAvatar').textContent = body.name.charAt(0).toUpperCase();
     document.getElementById('heroRole').textContent = (user.role==='farmer'?'🌾 Farmer':'🛒 Buyer') + (body.county?' · '+body.county:'');

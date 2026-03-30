@@ -16,16 +16,16 @@ const COUNTIES = ['Baringo','Bomet','Bungoma','Busia','Elgeyo-Marakwet','Embu','
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function saveAuth(d) {
-  sessionStorage.setItem('farmad_token',   d.access_token);
-  sessionStorage.setItem('farmad_refresh', d.refresh_token);
-  sessionStorage.setItem('farmad_user',    JSON.stringify(d.user));
+  localStorage.setItem('farmad_token',   d.access_token);
+  localStorage.setItem('farmad_refresh', d.refresh_token);
+  localStorage.setItem('farmad_user',    JSON.stringify(d.user));
 }
 function getUser() {
-  const u = sessionStorage.getItem('farmad_user');
+  const u = localStorage.getItem('farmad_user');
   return u ? JSON.parse(u) : null;
 }
 function clearAuth() {
-  ['farmad_token','farmad_refresh','farmad_user'].forEach(k => sessionStorage.removeItem(k));
+  ['farmad_token','farmad_refresh','farmad_user'].forEach(k => localStorage.removeItem(k));
 }
 function requireAuth(role) {
   const user = getUser();
@@ -36,7 +36,7 @@ function requireAuth(role) {
 
 // ── API fetch ─────────────────────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
-  const token = sessionStorage.getItem('farmad_token');
+  const token = localStorage.getItem('farmad_token');
   const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   try {
@@ -89,7 +89,7 @@ function updateNav() {
 }
 
 async function handleLogout() {
-  const refresh = sessionStorage.getItem('farmad_refresh');
+  const refresh = localStorage.getItem('farmad_refresh');
   try { await apiFetch('/auth/logout', { method:'POST', body: JSON.stringify({ refresh_token: refresh }) }); } catch {}
   clearAuth();
   window.location.href = '/';

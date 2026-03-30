@@ -8,8 +8,23 @@
 <link rel="stylesheet" href="/shared.css">
 <style>
 /* ── Layout ─────────────────────────────────────────────────────────────────── */
-.dash-wrap { display:grid; grid-template-columns:1fr 340px; gap:2rem; padding:2.5rem 6vw 4rem; align-items:start; }
+.dash-wrap { display:grid; grid-template-columns:1fr 340px; gap:2rem; padding:2.5rem 6vw 4rem; align-items:start; min-height:200px; }
 @media(max-width:960px) { .dash-wrap { grid-template-columns:1fr; } }
+@media(max-width:640px) {
+  .dash-hero { padding:1.75rem 5vw 0; }
+  .hero-inner { flex-direction:column; align-items:flex-start; gap:0; padding-bottom:1.5rem; }
+  .hero-name { font-size:1.8rem; }
+  .hero-left { padding-bottom:0; }
+  .hero-edit-link { padding-bottom:0; margin-top:0.75rem; align-self:auto; font-size:0.75rem; }
+  .dash-wrap { padding:1.5rem 5vw 3rem; }
+  .quick-row { gap:0.5rem; }
+  .qbtn { padding:0.55rem 0.9rem; font-size:0.8rem; }
+  .order-card { grid-template-columns:1fr; gap:0.4rem; }
+  .oc-right { flex-direction:row; justify-content:flex-start; }
+  .sidebar-card { padding:1.1rem; }
+  .fp-stats { gap:0.5rem; }
+  .sec-title { font-size:1.05rem; }
+}
 
 /* ── Hero Banner ────────────────────────────────────────────────────────────── */
 .dash-hero {
@@ -48,7 +63,7 @@
 .stat-cell-num.highlight { color:var(--harvest); }
 .stat-cell-label { font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:0.3rem; font-weight:500; letter-spacing:0.3px; }
 .stat-cell-icon { position:absolute; top:1rem; right:1.25rem; font-size:1.1rem; opacity:0.3; }
-@media(max-width:600px) { .stats-strip { grid-template-columns:1fr 1fr; } .stat-cell { border-bottom:1px solid rgba(255,255,255,0.07); } }
+@media(max-width:600px) { .stats-strip { grid-template-columns:1fr 1fr; } .stat-cell { border-bottom:1px solid rgba(255,255,255,0.07); } .stat-cell-num { font-size:1.4rem; } }
 
 /* ── Quick Actions ──────────────────────────────────────────────────────────── */
 .quick-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem; }
@@ -142,7 +157,7 @@
   <ul class="nav-links" id="navLinks"></ul>
 </nav>
 
-<div class="page-wrap" style="padding-top:72px; background:var(--cream)">
+<div class="page-wrap" style="padding-top:72px; background:var(--cream); min-height:100vh;">
 
   <!-- Hero banner — filled by JS -->
   <div id="dashHero"></div>
@@ -151,7 +166,7 @@
   <div class="dash-wrap">
     <main id="dashMain">
       <div style="display:flex;flex-direction:column;gap:1.25rem">
-        <div class="skeleton" style="height:44px;border-radius:100px;width:360px;max-width:100%"></div>
+        <div class="skeleton" style="height:44px;border-radius:100px;width:min(360px,100%)"></div>
         <div class="skeleton" style="height:200px;border-radius:16px"></div>
         <div class="skeleton" style="height:140px;border-radius:16px"></div>
         <div class="skeleton" style="height:140px;border-radius:16px"></div>
