@@ -7,51 +7,133 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared.css">
 <style>
-.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-.stat-card { background:white; border-radius:var(--radius-lg); padding:1.5rem; border:1px solid rgba(92,51,23,0.08); }
-.stat-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:var(--earth); line-height:1; }
-.stat-label { font-size:0.78rem; color:var(--subtext); margin-top:0.3rem; }
-.stat-card.highlight { background:var(--leaf); }
-.stat-card.highlight .stat-num { color:white; }
-.stat-card.highlight .stat-label { color:rgba(255,255,255,0.7); }
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.dash-wrap { display:grid; grid-template-columns:1fr 340px; gap:2rem; padding:2.5rem 6vw 4rem; align-items:start; }
+@media(max-width:960px) { .dash-wrap { grid-template-columns:1fr; } }
 
-.dash-section { margin-bottom:2.5rem; }
-.dash-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
-.dash-section-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:var(--earth); }
+/* ── Hero Banner ────────────────────────────────────────────────────────────── */
+.dash-hero {
+  background:linear-gradient(135deg, var(--earth) 0%, #1c400f 100%);
+  padding:2.5rem 6vw 0;
+  position:relative; overflow:hidden;
+}
+.dash-hero::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:320px; height:320px; border-radius:50%;
+  background:radial-gradient(circle, rgba(232,160,32,0.12) 0%, transparent 70%);
+  pointer-events:none;
+}
+.dash-hero::after {
+  content:''; position:absolute; bottom:-40px; left:30%;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(58,125,44,0.15) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-inner { position:relative; z-index:1; display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; padding-bottom:0; }
+.hero-left { padding-bottom:2.5rem; }
+.hero-greeting { font-size:0.72rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--harvest); margin-bottom:0.5rem; }
+.hero-name { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.6rem); font-weight:900; color:white; line-height:1.1; }
+.hero-sub { font-size:0.88rem; color:rgba(255,255,255,0.5); margin-top:0.4rem; font-weight:300; }
+.hero-avatar-wrap { display:flex; align-items:center; gap:1rem; margin-top:1.25rem; }
+.hero-avatar { width:52px; height:52px; border-radius:50%; background:var(--harvest); color:var(--earth); font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:2px solid rgba(255,255,255,0.15); }
+.hero-badge { display:inline-flex; align-items:center; gap:0.35rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:100px; padding:0.3rem 0.85rem; font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.8); }
+.hero-edit-link { margin-left:auto; font-size:0.78rem; color:rgba(255,255,255,0.4); text-decoration:none; padding-bottom:2.5rem; align-self:flex-end; transition:color 0.2s; }
+.hero-edit-link:hover { color:var(--harvest); }
 
-.order-row { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:1rem; }
-.order-id { font-size:0.7rem; font-family:monospace; color:var(--subtext); }
-.order-info { flex:1; min-width:0; }
-.order-party { font-size:0.8rem; color:var(--subtext); margin-top:0.15rem; }
-.order-amount { font-weight:700; color:var(--earth); font-size:0.95rem; }
-.order-actions { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem; }
-.action-btn { padding:0.4rem 0.9rem; border-radius:8px; border:none; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
-.action-confirm { background:var(--leaf); color:white; }
-.action-confirm:hover { background:#2d6122; }
-.action-ready { background:#dbeafe; color:#1e40af; }
-.action-transit { background:#e0e7ff; color:#3730a3; }
-.action-deliver { background:#dcfce7; color:#166534; }
-.action-cancel { background:#fee2e2; color:#991b1b; }
+/* Stats strip sits at the bottom of the hero */
+.stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.07); }
+.stat-cell { padding:1.25rem 1.5rem; border-right:1px solid rgba(255,255,255,0.07); position:relative; }
+.stat-cell:last-child { border-right:none; }
+.stat-cell-num { font-family:'Playfair Display',serif; font-size:1.9rem; font-weight:900; color:white; line-height:1; }
+.stat-cell-num.highlight { color:var(--harvest); }
+.stat-cell-label { font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:0.3rem; font-weight:500; letter-spacing:0.3px; }
+.stat-cell-icon { position:absolute; top:1rem; right:1.25rem; font-size:1.1rem; opacity:0.3; }
+@media(max-width:600px) { .stats-strip { grid-template-columns:1fr 1fr; } .stat-cell { border-bottom:1px solid rgba(255,255,255,0.07); } }
 
-.quick-actions { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2.5rem; }
-.quick-btn { padding:0.8rem 1.5rem; border-radius:100px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; border:none; text-decoration:none; transition:all 0.2s; display:inline-flex; align-items:center; gap:0.5rem; }
-.quick-btn-primary { background:var(--leaf); color:white; box-shadow:0 4px 16px rgba(58,125,44,0.25); }
-.quick-btn-primary:hover { background:#2d6122; }
-.quick-btn-outline { background:white; color:var(--earth); border:1.5px solid rgba(45,27,14,0.2); }
-.quick-btn-outline:hover { border-color:var(--leaf); color:var(--leaf); }
+/* ── Quick Actions ──────────────────────────────────────────────────────────── */
+.quick-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem; }
+.qbtn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.25rem; border-radius:100px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; text-decoration:none; transition:all 0.2s; border:none; }
+.qbtn-primary { background:var(--leaf); color:white; box-shadow:0 4px 14px rgba(58,125,44,0.25); }
+.qbtn-primary:hover { background:#2d6122; transform:translateY(-1px); box-shadow:0 6px 18px rgba(58,125,44,0.3); }
+.qbtn-soft { background:white; color:var(--earth); border:1.5px solid rgba(45,27,14,0.14); }
+.qbtn-soft:hover { border-color:var(--leaf); color:var(--leaf); }
 
-.review-card { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-.review-name { font-weight:600; color:var(--earth); font-size:0.9rem; }
-.review-sub  { font-size:0.75rem; color:var(--subtext); margin-top:0.15rem; }
+/* ── Section header ─────────────────────────────────────────────────────────── */
+.sec-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.sec-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:900; color:var(--earth); }
+.sec-link { font-size:0.8rem; color:var(--leaf); font-weight:600; text-decoration:none; }
+.sec-link:hover { text-decoration:underline; }
 
-/* Profile card */
-.profile-card { background:var(--earth); border-radius:var(--radius-lg); padding:2rem; color:white; margin-bottom:2rem; display:flex; align-items:center; gap:1.5rem; }
-.profile-avatar { width:60px; height:60px; border-radius:50%; background:var(--harvest); color:var(--earth); font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.profile-name { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; }
-.profile-role { font-size:0.82rem; color:rgba(255,255,255,0.55); margin-top:0.2rem; }
+/* ── Order cards ────────────────────────────────────────────────────────────── */
+.order-card {
+  background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08);
+  padding:1rem 1.25rem; margin-bottom:0.75rem;
+  display:grid; grid-template-columns:1fr auto;
+  gap:0.75rem; align-items:center;
+  transition:box-shadow 0.2s, transform 0.2s;
+}
+.order-card:hover { box-shadow:0 4px 20px rgba(45,27,14,0.09); transform:translateY(-1px); }
+.order-card-left {}
+.oc-top { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.3rem; }
+.oc-id { font-size:0.68rem; font-family:monospace; color:rgba(107,82,64,0.5); background:var(--mist); padding:0.15rem 0.5rem; border-radius:6px; }
+.oc-amount { font-weight:700; color:var(--earth); font-size:0.95rem; }
+.oc-meta { font-size:0.75rem; color:var(--subtext); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+.oc-dot { opacity:0.3; }
+.oc-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
+.oa-btn { padding:0.32rem 0.8rem; border-radius:7px; border:none; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.oa-confirm  { background:var(--leaf); color:white; }
+.oa-confirm:hover  { background:#2d6122; }
+.oa-ready    { background:#dbeafe; color:#1e40af; }
+.oa-ready:hover    { background:#bfdbfe; }
+.oa-transit  { background:#e0e7ff; color:#3730a3; }
+.oa-transit:hover  { background:#c7d2fe; }
+.oa-deliver  { background:#dcfce7; color:#166534; }
+.oa-deliver:hover  { background:#bbf7d0; }
+.oa-cancel   { background:#fee2e2; color:#991b1b; }
+.oa-cancel:hover   { background:#fecaca; }
+.oc-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem; }
 
-@media(max-width:700px) { .dash-grid { grid-template-columns:1fr 1fr; } .order-row { flex-wrap:wrap; } }
-@media(max-width:400px) { .dash-grid { grid-template-columns:1fr; } }
+/* ── Review cards ───────────────────────────────────────────────────────────── */
+.review-card {
+  background:linear-gradient(135deg, #fffbf0 0%, #fff8e6 100%);
+  border:1px solid rgba(232,160,32,0.2); border-radius:var(--radius);
+  padding:1rem 1.25rem; margin-bottom:0.75rem;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+}
+.rc-name  { font-weight:700; color:var(--earth); font-size:0.88rem; }
+.rc-sub   { font-size:0.73rem; color:var(--subtext); margin-top:0.1rem; }
+.rc-icon  { font-size:1.4rem; flex-shrink:0; }
+
+/* ── Sidebar ────────────────────────────────────────────────────────────────── */
+.sidebar-card { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.5rem; margin-bottom:1.25rem; }
+.sidebar-card-title { font-size:0.7rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--subtext); margin-bottom:1.1rem; }
+
+/* Farmer profile sidebar */
+.farm-profile { text-align:center; padding:0.5rem 0 0; }
+.fp-avatar { width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg,var(--leaf),#1c400f); color:white; font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem; }
+.fp-name  { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:900; color:var(--earth); }
+.fp-role  { font-size:0.75rem; color:var(--subtext); margin-top:0.2rem; }
+.fp-stats { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:1.25rem 0 1rem; }
+.fp-stat  { background:var(--mist); border-radius:12px; padding:0.8rem; text-align:center; }
+.fp-stat-num { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:var(--earth); }
+.fp-stat-label { font-size:0.65rem; color:var(--subtext); margin-top:0.15rem; }
+.fp-rating { display:flex; align-items:center; justify-content:center; gap:0.4rem; margin-bottom:1rem; font-size:0.82rem; color:var(--subtext); }
+.fp-rating-stars { color:var(--harvest); font-size:0.95rem; letter-spacing:1px; }
+.fp-edit-btn { display:block; width:100%; padding:0.65rem; background:var(--mist); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.82rem; color:var(--earth); cursor:pointer; text-decoration:none; text-align:center; transition:background 0.2s; }
+.fp-edit-btn:hover { background:#e0d8c8; }
+
+/* Links list in sidebar */
+.sidebar-links { display:flex; flex-direction:column; gap:0.3rem; }
+.sidebar-link { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.85rem; border-radius:10px; text-decoration:none; color:var(--subtext); font-size:0.86rem; font-weight:500; transition:all 0.15s; }
+.sidebar-link:hover { background:var(--mist); color:var(--earth); }
+.sidebar-link-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+
+/* Activity dot indicator */
+.activity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dot-pending   { background:#f59e0b; }
+.dot-confirmed { background:#3b82f6; }
+.dot-delivered { background:#22c55e; }
+.dot-cancelled { background:#ef4444; }
 </style>
 </head>
 <body>
@@ -60,21 +142,25 @@
   <ul class="nav-links" id="navLinks"></ul>
 </nav>
 
-<div class="page-wrap">
-  <div class="page-header">
-    <div class="eyebrow">My Account</div>
-    <h1 id="dashTitle">Dashboard</h1>
-  </div>
+<div class="page-wrap" style="padding-top:72px; background:var(--cream)">
 
-  <div class="section" id="dashContent">
-    <!-- filled by JS -->
-    <div class="skeleton" style="height:120px;border-radius:20px;margin-bottom:1.5rem"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
-      <div class="skeleton" style="height:90px;border-radius:16px"></div>
-      <div class="skeleton" style="height:90px;border-radius:16px"></div>
-      <div class="skeleton" style="height:90px;border-radius:16px"></div>
-      <div class="skeleton" style="height:90px;border-radius:16px"></div>
-    </div>
+  <!-- Hero banner — filled by JS -->
+  <div id="dashHero"></div>
+
+  <!-- Main content -->
+  <div class="dash-wrap">
+    <main id="dashMain">
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="skeleton" style="height:44px;border-radius:100px;width:360px;max-width:100%"></div>
+        <div class="skeleton" style="height:200px;border-radius:16px"></div>
+        <div class="skeleton" style="height:140px;border-radius:16px"></div>
+        <div class="skeleton" style="height:140px;border-radius:16px"></div>
+      </div>
+    </main>
+    <aside id="dashSidebar">
+      <div class="skeleton" style="height:280px;border-radius:24px;margin-bottom:1.25rem"></div>
+      <div class="skeleton" style="height:160px;border-radius:24px"></div>
+    </aside>
   </div>
 </div>
 
@@ -82,24 +168,26 @@
 <div class="modal-overlay" id="reviewModal">
   <div class="modal">
     <button class="modal-close" onclick="closeReviewModal()">✕</button>
-    <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.3rem">Leave a Review</h3>
-    <p style="font-size:0.85rem;color:var(--subtext);margin-bottom:1.25rem" id="reviewFor"></p>
+    <div style="font-size:1.5rem;margin-bottom:0.5rem">⭐</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;color:var(--earth);margin-bottom:0.25rem">Leave a Review</h3>
+    <p style="font-size:0.83rem;color:var(--subtext);margin-bottom:1.5rem" id="reviewFor"></p>
     <div class="alert alert-error" id="reviewError"></div>
     <div class="form-group">
-      <label>Rating</label>
-      <select id="reviewRating">
-        <option value="5">⭐⭐⭐⭐⭐ — Excellent</option>
-        <option value="4">⭐⭐⭐⭐ — Good</option>
-        <option value="3">⭐⭐⭐ — Average</option>
-        <option value="2">⭐⭐ — Below average</option>
-        <option value="1">⭐ — Poor</option>
-      </select>
+      <label>Your Rating</label>
+      <div id="starPicker" style="display:flex;gap:0.4rem;margin-bottom:0.5rem">
+        <span class="star-opt" data-v="1" onclick="pickStar(1)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
+        <span class="star-opt" data-v="2" onclick="pickStar(2)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
+        <span class="star-opt" data-v="3" onclick="pickStar(3)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
+        <span class="star-opt" data-v="4" onclick="pickStar(4)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
+        <span class="star-opt" data-v="5" onclick="pickStar(5)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
+      </div>
+      <input type="hidden" id="reviewRating" value="5">
     </div>
     <div class="form-group">
       <label>Comment <span style="font-weight:400;color:var(--subtext)">(optional)</span></label>
-      <textarea id="reviewComment" rows="3" placeholder="Share your experience…" style="border:1.5px solid rgba(92,51,23,0.2);border-radius:12px;padding:0.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;width:100%;resize:vertical"></textarea>
+      <textarea id="reviewComment" rows="3" placeholder="Share your experience…" style="border:1.5px solid rgba(92,51,23,0.2);border-radius:12px;padding:0.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;width:100%;resize:vertical;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--leaf)'" onblur="this.style.borderColor='rgba(92,51,23,0.2)'"></textarea>
     </div>
-    <button class="submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review ⭐</button>
+    <button class="submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review</button>
   </div>
 </div>
 
@@ -107,140 +195,256 @@
 <script>
 const user = requireAuth();
 if (!user) throw new Error('redirect');
-
 const isFarmer = user.role === 'farmer';
-document.getElementById('dashTitle').textContent = isFarmer ? '🌾 Farmer Dashboard' : '🛒 Buyer Dashboard';
 
 let pendingReviewOrder = null;
+let selectedStar = 5;
+
+function pickStar(n) {
+  selectedStar = n;
+  document.getElementById('reviewRating').value = n;
+  document.querySelectorAll('.star-opt').forEach((s,i) => {
+    s.textContent = i < n ? '★' : '☆';
+    s.style.color  = i < n ? 'var(--harvest)' : 'var(--subtext)';
+    s.style.transform = i < n ? 'scale(1.1)' : 'scale(1)';
+  });
+}
+pickStar(5);
 
 async function loadDash() {
-  const [summaryRes, ordersRes, pendingRes] = await Promise.all([
+  const [summaryRes, ordersRes, pendingRes, meRes] = await Promise.all([
     apiFetch('/orders/summary/me'),
-    apiFetch('/orders?limit=10'),
-    apiFetch('/reviews/pending')
+    apiFetch('/orders?limit=8'),
+    apiFetch('/reviews/pending'),
+    apiFetch('/auth/me')
   ]);
 
-  const summary = summaryRes.ok ? summaryRes.data.data : {};
-  const orders  = ordersRes.ok  ? ordersRes.data.data.orders : [];
-  const pending = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
-  const revenue = isFarmer ? summary.total_revenue : summary.total_spent;
+  const summary  = summaryRes.ok ? summaryRes.data.data  : {};
+  const orders   = ordersRes.ok  ? ordersRes.data.data.orders : [];
+  const pending  = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
+  const me       = meRes.ok      ? meRes.data.data.user   : user;
+  const profile  = me.profile || {};
+  const revenue  = isFarmer ? summary.total_revenue : summary.total_spent;
 
-  const content = document.getElementById('dashContent');
-  content.innerHTML = `
-    <div class="profile-card">
-      <div class="profile-avatar">${user.name.charAt(0)}</div>
-      <div>
-        <div class="profile-name">${user.name}</div>
-        <div class="profile-role">${isFarmer ? '🌾 Farmer' : '🛒 Buyer'} · ${user.county || ''}</div>
-      </div>
-      <a href="/pages/settings.html" style="margin-left:auto;color:rgba(255,255,255,0.5);font-size:0.82rem;text-decoration:none">Edit Profile →</a>
-    </div>
-
-    <div class="quick-actions">
-      ${isFarmer
-        ? `<a href="/pages/my-listings.html" class="quick-btn quick-btn-primary">+ Post Listing</a>
-           <a href="/pages/orders.html" class="quick-btn quick-btn-outline">📦 My Orders</a>
-           <a href="/pages/prices.html" class="quick-btn quick-btn-outline">📊 Market Prices</a>`
-        : `<a href="/pages/browse.html" class="quick-btn quick-btn-primary">🛒 Browse Produce</a>
-           <a href="/pages/orders.html" class="quick-btn quick-btn-outline">📦 My Orders</a>
-           <a href="/pages/prices.html" class="quick-btn quick-btn-outline">📊 Market Prices</a>`}
-    </div>
-
-    <div class="dash-section">
-      <div class="dash-section-header"><div class="dash-section-title">Overview</div></div>
-      <div class="dash-grid">
-        <div class="stat-card"><div class="stat-num">${summary.total_orders||0}</div><div class="stat-label">Total Orders</div></div>
-        <div class="stat-card"><div class="stat-num">${summary.delivered||0}</div><div class="stat-label">Completed</div></div>
-        <div class="stat-card"><div class="stat-num">${summary.pending||0}</div><div class="stat-label">Pending</div></div>
-        <div class="stat-card highlight"><div class="stat-num">KSh ${fmtPrice(revenue||0)}</div><div class="stat-label">${isFarmer?'Total Revenue':'Total Spent'}</div></div>
-      </div>
-    </div>
-
-    ${pending.length > 0 ? `
-    <div class="dash-section">
-      <div class="dash-section-header">
-        <div class="dash-section-title">⭐ Pending Reviews (${pending.length})</div>
-      </div>
-      ${pending.map(p => `
-        <div class="review-card">
-          <div>
-            <div class="review-name">${p.reviewee_name}</div>
-            <div class="review-sub">${p.items_summary||'Order #'+p.order_id.slice(0,8).toUpperCase()}</div>
+  /* ── Hero ── */
+  document.getElementById('dashHero').innerHTML = `
+    <div class="dash-hero">
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-greeting">${isFarmer ? '🌾 Farmer Dashboard' : '🛒 Buyer Dashboard'}</div>
+          <div class="hero-name">Welcome back,<br>${me.name.split(' ')[0]}.</div>
+          <div class="hero-sub">${isFarmer ? (profile.farm_name||'') + ' · ' : ''}${me.county||''}</div>
+          <div class="hero-avatar-wrap">
+            <div class="hero-avatar">${me.name.charAt(0)}</div>
+            <div class="hero-badge">${me.is_verified ? '✓ Verified' : isFarmer ? '🌱 Farmer' : '🛒 Buyer'}</div>
+            ${pending.length > 0 ? `<div class="hero-badge" style="background:rgba(232,160,32,0.2);border-color:rgba(232,160,32,0.35);color:var(--harvest)">⭐ ${pending.length} review${pending.length>1?'s':''} pending</div>` : ''}
           </div>
-          <button class="action-btn action-confirm" onclick="openReview('${p.order_id}','${p.reviewee_id}','${p.reviewee_name}')">Write Review</button>
+        </div>
+        <a href="/pages/settings.html" class="hero-edit-link">Edit profile →</a>
+      </div>
+      <div class="stats-strip">
+        <div class="stat-cell"><div class="stat-cell-icon">📦</div><div class="stat-cell-num">${summary.total_orders||0}</div><div class="stat-cell-label">Total Orders</div></div>
+        <div class="stat-cell"><div class="stat-cell-icon">✅</div><div class="stat-cell-num">${summary.delivered||0}</div><div class="stat-cell-label">Completed</div></div>
+        <div class="stat-cell"><div class="stat-cell-icon">⏳</div><div class="stat-cell-num">${summary.pending||0}</div><div class="stat-cell-label">Pending</div></div>
+        <div class="stat-cell"><div class="stat-cell-icon">${isFarmer?'💰':'🛍️'}</div><div class="stat-cell-num highlight">KSh ${fmtPrice(revenue||0)}</div><div class="stat-cell-label">${isFarmer?'Revenue':'Total Spent'}</div></div>
+      </div>
+    </div>`;
+
+  /* ── Main ── */
+  const mainEl = document.getElementById('dashMain');
+  mainEl.innerHTML = `
+    <!-- Quick actions -->
+    <div class="quick-row">
+      ${isFarmer
+        ? `<a href="/pages/my-listings.html" class="qbtn qbtn-primary">＋ Post Listing</a>
+           <a href="/pages/orders.html"      class="qbtn qbtn-soft">📦 All Orders</a>
+           <a href="/pages/prices.html"      class="qbtn qbtn-soft">📊 Prices</a>
+           <a href="/pages/my-listings.html" class="qbtn qbtn-soft">🌿 My Listings</a>`
+        : `<a href="/pages/browse.html"      class="qbtn qbtn-primary">🛒 Browse Produce</a>
+           <a href="/pages/orders.html"      class="qbtn qbtn-soft">📦 My Orders</a>
+           <a href="/pages/prices.html"      class="qbtn qbtn-soft">📊 Prices</a>`}
+    </div>
+
+    <!-- Pending reviews -->
+    ${pending.length > 0 ? `
+    <div style="margin-bottom:2rem">
+      <div class="sec-head"><div class="sec-title">⭐ Reviews to Write</div></div>
+      ${pending.map(p=>`
+        <div class="review-card">
+          <div class="rc-icon">👤</div>
+          <div style="flex:1;min-width:0">
+            <div class="rc-name">${p.reviewee_name}</div>
+            <div class="rc-sub">${p.items_summary||'Order #'+p.order_id.slice(0,8).toUpperCase()}</div>
+          </div>
+          <button class="qbtn qbtn-soft" style="padding:0.45rem 1rem;font-size:0.78rem;border-radius:8px" onclick="openReview('${p.order_id}','${p.reviewee_id}','${p.reviewee_name}')">Write Review →</button>
         </div>`).join('')}
     </div>` : ''}
 
-    <div class="dash-section">
-      <div class="dash-section-header">
-        <div class="dash-section-title">Recent Orders</div>
-        <a href="/pages/orders.html" style="font-size:0.82rem;color:var(--leaf);font-weight:600;text-decoration:none">View all →</a>
+    <!-- Recent Orders -->
+    <div>
+      <div class="sec-head">
+        <div class="sec-title">Recent Orders</div>
+        <a href="/pages/orders.html" class="sec-link">View all →</a>
       </div>
       ${orders.length === 0
-        ? `<div class="empty-state"><div class="icon">📦</div><h3>No orders yet</h3><p>${isFarmer?'Orders from buyers will appear here.':'Browse listings to place your first order.'}</p></div>`
-        : orders.map(o => buildOrderRow(o)).join('')}
+        ? `<div class="empty-state" style="padding:3rem 1rem">
+             <div class="icon">${isFarmer?'🌾':'🛒'}</div>
+             <h3>No orders yet</h3>
+             <p>${isFarmer ? 'When buyers place orders, they\'ll appear here.' : 'Browse listings and place your first order.'}</p>
+             <a href="${isFarmer?'/pages/my-listings.html':'/pages/browse.html'}" class="btn btn-primary btn-sm" style="margin-top:1.25rem">${isFarmer?'Post a Listing':'Browse Produce'}</a>
+           </div>`
+        : orders.map(o => buildOrderCard(o)).join('')}
     </div>`;
+
+  /* ── Sidebar ── */
+  const sideEl = document.getElementById('dashSidebar');
+  sideEl.innerHTML = `
+    <!-- Profile card -->
+    <div class="sidebar-card">
+      <div class="farm-profile">
+        <div class="fp-avatar">${me.name.charAt(0)}</div>
+        <div class="fp-name">${me.name}</div>
+        <div class="fp-role">${isFarmer ? (profile.farm_name||'Farmer') : (profile.business_name||'Buyer')} · ${me.county||''}</div>
+        ${profile.rating > 0 ? `
+        <div class="fp-rating" style="margin-top:0.6rem">
+          <span class="fp-rating-stars">${'★'.repeat(Math.round(profile.rating))}${'☆'.repeat(5-Math.round(profile.rating))}</span>
+          <span>${Number(profile.rating).toFixed(1)} (${profile.total_reviews||0} reviews)</span>
+        </div>` : ''}
+        <div class="fp-stats">
+          ${isFarmer
+            ? `<div class="fp-stat"><div class="fp-stat-num">${profile.total_sales||0}</div><div class="fp-stat-label">Sales</div></div>
+               <div class="fp-stat"><div class="fp-stat-num">${summary.total_orders||0}</div><div class="fp-stat-label">Orders</div></div>`
+            : `<div class="fp-stat"><div class="fp-stat-num">${summary.total_orders||0}</div><div class="fp-stat-label">Orders</div></div>
+               <div class="fp-stat"><div class="fp-stat-num">${summary.delivered||0}</div><div class="fp-stat-label">Completed</div></div>`}
+        </div>
+        <a href="/pages/settings.html" class="fp-edit-btn">Edit Profile</a>
+      </div>
+    </div>
+
+    <!-- Navigation shortcuts -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Quick Links</div>
+      <div class="sidebar-links">
+        ${isFarmer ? `
+        <a href="/pages/my-listings.html" class="sidebar-link"><div class="sidebar-link-icon" style="background:#E8F4E8">🌿</div> My Listings</a>
+        <a href="/pages/orders.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#EFF6FF">📦</div> Incoming Orders</a>
+        <a href="/pages/prices.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#FFFBEB">📊</div> Market Prices</a>
+        <a href="/pages/settings.html"    class="sidebar-link"><div class="sidebar-link-icon" style="background:var(--mist)">⚙️</div> Account Settings</a>
+        ` : `
+        <a href="/pages/browse.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#E8F4E8">🛒</div> Browse Produce</a>
+        <a href="/pages/orders.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#EFF6FF">📦</div> My Orders</a>
+        <a href="/pages/prices.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#FFFBEB">📊</div> Market Prices</a>
+        <a href="/pages/settings.html"    class="sidebar-link"><div class="sidebar-link-icon" style="background:var(--mist)">⚙️</div> Account Settings</a>
+        `}
+      </div>
+    </div>
+
+    <!-- Order status breakdown -->
+    ${summary.total_orders > 0 ? `
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">Order Breakdown</div>
+      ${buildStatusBar('Pending',   summary.pending||0,   summary.total_orders, 'dot-pending')}
+      ${buildStatusBar('Confirmed', summary.confirmed||0, summary.total_orders, 'dot-confirmed')}
+      ${buildStatusBar('Delivered', summary.delivered||0, summary.total_orders, 'dot-delivered')}
+      ${buildStatusBar('Cancelled', summary.cancelled||0, summary.total_orders, 'dot-cancelled')}
+    </div>` : ''}`;
 }
 
-function buildOrderRow(o) {
-  const actions = buildActions(o);
-  return `<div class="order-row">
-    <div style="flex:1;min-width:0">
-      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
-        <div class="order-id">#${o.id.slice(0,8).toUpperCase()}</div>
-        ${statusBadge(o.status)}
-        <div class="order-amount">KSh ${fmtPrice(o.total_amount)}</div>
+function buildStatusBar(label, count, total, dotClass) {
+  const pct = total > 0 ? Math.round(count/total*100) : 0;
+  return `<div style="margin-bottom:0.7rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
+      <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--subtext)">
+        <div class="activity-dot ${dotClass}"></div>${label}
       </div>
-      <div class="order-party">${isFarmer ? '← '+o.buyer_name : '→ '+(o.farm_name||o.farmer_name)} · ${fmtDate(o.created_at)}</div>
-      ${actions ? `<div class="order-actions">${actions}</div>` : ''}
+      <span style="font-size:0.75rem;font-weight:600;color:var(--earth)">${count}</span>
     </div>
-    <a href="/pages/orders.html?id=${o.id}" style="font-size:0.78rem;color:var(--leaf);text-decoration:none;white-space:nowrap">Details →</a>
+    <div style="background:var(--mist);border-radius:100px;height:5px;overflow:hidden">
+      <div style="background:var(--leaf);height:100%;border-radius:100px;width:${pct}%;transition:width 0.6s ease"></div>
+    </div>
   </div>`;
 }
 
-function buildActions(o) {
+function buildOrderCard(o) {
+  const party = isFarmer ? o.buyer_name : (o.farm_name || o.farmer_name);
+  const partyLabel = isFarmer ? '← from' : '→ to';
+  const actions = buildOrderActions(o);
+  return `<div class="order-card">
+    <div class="order-card-left">
+      <div class="oc-top">
+        <span class="oc-id">#${o.id.slice(0,8).toUpperCase()}</span>
+        ${statusBadge(o.status)}
+        <span class="oc-amount">KSh ${fmtPrice(o.total_amount)}</span>
+      </div>
+      <div class="oc-meta">
+        <span>${partyLabel} <strong style="color:var(--earth)">${party}</strong></span>
+        <span class="oc-dot">·</span>
+        <span>${fmtDate(o.created_at)}</span>
+        ${o.item_count ? `<span class="oc-dot">·</span><span>${o.item_count} item${o.item_count>1?'s':''}</span>` : ''}
+      </div>
+      ${actions ? `<div class="oc-actions">${actions}</div>` : ''}
+    </div>
+    <div class="oc-right">
+      <a href="/pages/orders.html?id=${o.id}" style="font-size:0.75rem;color:var(--leaf);text-decoration:none;font-weight:600;white-space:nowrap">Details →</a>
+    </div>
+  </div>`;
+}
+
+function buildOrderActions(o) {
   const btns = [];
   if (isFarmer) {
-    if (o.status==='pending')   btns.push(`<button class="action-btn action-confirm" onclick="updateOrder('${o.id}','confirm')">✓ Confirm</button>`);
-    if (o.status==='confirmed') btns.push(`<button class="action-btn action-ready"  onclick="updateOrder('${o.id}','ready')">Pack Ready</button>`);
-    if (o.status==='ready')     btns.push(`<button class="action-btn action-transit" onclick="updateOrder('${o.id}','in-transit')">Dispatch</button>`);
+    if (o.status==='pending')   btns.push(`<button class="oa-btn oa-confirm" onclick="doAction('${o.id}','confirm')">✓ Confirm</button>`);
+    if (o.status==='confirmed') btns.push(`<button class="oa-btn oa-ready"   onclick="doAction('${o.id}','ready')">📦 Mark Ready</button>`);
+    if (o.status==='ready')     btns.push(`<button class="oa-btn oa-transit"  onclick="doAction('${o.id}','in-transit')">🚚 Dispatch</button>`);
   } else {
-    if (['ready','in_transit'].includes(o.status)) btns.push(`<button class="action-btn action-deliver" onclick="updateOrder('${o.id}','delivered')">✓ Received</button>`);
+    if (['ready','in_transit'].includes(o.status)) btns.push(`<button class="oa-btn oa-deliver" onclick="doAction('${o.id}','delivered')">✓ Confirm Receipt</button>`);
   }
-  if (!['delivered','cancelled'].includes(o.status)) btns.push(`<button class="action-btn action-cancel" onclick="updateOrder('${o.id}','cancel')">Cancel</button>`);
+  if (!['delivered','cancelled'].includes(o.status)) btns.push(`<button class="oa-btn oa-cancel" onclick="doAction('${o.id}','cancel')">Cancel</button>`);
   return btns.join('');
 }
 
-async function updateOrder(id, action) {
+async function doAction(id, action) {
   const { ok, data } = await apiFetch(`/orders/${id}/${action}`, { method:'PATCH' });
-  if (ok) { toast('Order updated ✅','success'); loadDash(); }
-  else toast(data.message||'Failed','error');
+  if (ok) { toast('Order updated ✅', 'success'); loadDash(); }
+  else toast(data.message || 'Failed', 'error');
 }
 
-// Review modal
+/* ── Review modal ── */
 function openReview(orderId, revieweeId, name) {
   pendingReviewOrder = { orderId, revieweeId };
-  document.getElementById('reviewFor').textContent = `Review for ${name}`;
-  document.getElementById('reviewError').style.display='none';
+  document.getElementById('reviewFor').textContent = `Reviewing your experience with ${name}`;
+  document.getElementById('reviewError').style.display = 'none';
+  document.getElementById('reviewComment').value = '';
+  pickStar(5);
   document.getElementById('reviewModal').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
-function closeReviewModal() { document.getElementById('reviewModal').classList.remove('open'); document.body.style.overflow=''; }
+function closeReviewModal() {
+  document.getElementById('reviewModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('reviewModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeReviewModal(); });
 
 async function submitReview() {
   if (!pendingReviewOrder) return;
-  const btn=document.getElementById('reviewSubmitBtn');
-  btn.disabled=true; btn.textContent='Submitting…';
+  const btn = document.getElementById('reviewSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
   const { ok, data } = await apiFetch('/reviews', { method:'POST', body: JSON.stringify({
     order_id: pendingReviewOrder.orderId,
     rating:   parseInt(document.getElementById('reviewRating').value),
     comment:  document.getElementById('reviewComment').value.trim()
   })});
-  if (ok) { closeReviewModal(); toast('Review submitted! ⭐','success'); loadDash(); }
-  else { const e=document.getElementById('reviewError'); e.textContent=data.message||'Failed'; e.style.display='block'; btn.disabled=false; btn.textContent='Submit Review ⭐'; }
+  if (ok) {
+    closeReviewModal();
+    toast('Review submitted! ⭐', 'success');
+    loadDash();
+  } else {
+    const e = document.getElementById('reviewError');
+    e.textContent = data.message || 'Could not submit review.';
+    e.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Submit Review';
+  }
 }
-
-document.getElementById('reviewModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeReviewModal(); });
 
 loadDash();
 </script>

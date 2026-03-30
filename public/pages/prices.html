@@ -7,185 +7,476 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared.css">
 <style>
-.prices-page { background:var(--earth); min-height:100vh; padding-top:72px; }
-.prices-controls { padding:2rem 6vw 1.5rem; border-bottom:1px solid rgba(255,255,255,0.08); }
-.prices-controls h1 { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.5rem); font-weight:900; color:var(--cream); margin-bottom:0.25rem; }
-.prices-controls h1 em { color:var(--harvest); font-style:italic; }
-.prices-controls p { color:rgba(250,245,236,0.5); font-size:0.88rem; font-weight:300; margin-bottom:1.25rem; }
-.county-pills { display:flex; gap:0.5rem; flex-wrap:wrap; }
-.cpill { padding:0.4rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.55); font-size:0.78rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+/* ─── Page shell ───────────────────────────────────────────── */
+body { background:#1a1008; }
+.prices-page { min-height:100vh; padding-top:72px; }
+
+/* ─── NAV override for dark page ──────────────────────────── */
+#mainNav { background:rgba(26,16,8,0.96); border-bottom:1px solid rgba(255,255,255,0.07); }
+#mainNav .logo { color:var(--cream); }
+#mainNav .nav-links a { color:rgba(250,245,236,0.55); }
+#mainNav .nav-links a:hover { color:var(--harvest); }
+#mainNav .nav-cta { background:var(--harvest)!important; color:var(--earth)!important; }
+#mainNav .nav-username { color:var(--cream); }
+
+/* ─── Hero ─────────────────────────────────────────────────── */
+.ph-hero {
+  background:linear-gradient(160deg,#1a1008 0%,#0e2908 60%,#1a1008 100%);
+  padding:3rem 6vw 0;
+  position:relative; overflow:hidden;
+}
+.ph-hero::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:500px; height:500px; border-radius:50%;
+  background:radial-gradient(circle, rgba(232,160,32,0.1) 0%, transparent 65%);
+  pointer-events:none;
+}
+.ph-hero::after {
+  content:''; position:absolute; bottom:-60px; left:20%;
+  width:300px; height:300px; border-radius:50%;
+  background:radial-gradient(circle, rgba(58,125,44,0.12) 0%, transparent 65%);
+  pointer-events:none;
+}
+.ph-hero-inner { position:relative; z-index:1; }
+.ph-eyebrow { font-size:0.7rem; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--harvest); margin-bottom:0.6rem; }
+.ph-title { font-family:'Playfair Display',serif; font-size:clamp(2rem,4.5vw,3.2rem); font-weight:900; color:var(--cream); line-height:1.1; margin-bottom:0.5rem; }
+.ph-title em { color:var(--harvest); font-style:italic; }
+.ph-subtitle { color:rgba(250,245,236,0.45); font-size:0.92rem; font-weight:300; margin-bottom:1.75rem; max-width:480px; line-height:1.6; }
+
+/* Search bar */
+.ph-search { display:flex; align-items:center; gap:0.75rem; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:100px; padding:0.65rem 1.25rem; max-width:440px; margin-bottom:1.5rem; transition:border-color 0.2s, background 0.2s; }
+.ph-search:focus-within { background:rgba(255,255,255,0.1); border-color:rgba(232,160,32,0.4); }
+.ph-search input { border:none; outline:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:0.92rem; color:var(--cream); flex:1; }
+.ph-search input::placeholder { color:rgba(250,245,236,0.3); }
+
+/* County pills strip */
+.ph-counties { display:flex; gap:0.5rem; flex-wrap:wrap; padding-bottom:1.5rem; }
+.cpill { padding:0.38rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-size:0.78rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.18s; }
 .cpill.active { background:var(--harvest); border-color:var(--harvest); color:var(--earth); }
-.cpill:hover:not(.active) { border-color:rgba(255,255,255,0.4); color:rgba(255,255,255,0.8); }
+.cpill:hover:not(.active) { border-color:rgba(255,255,255,0.35); color:rgba(255,255,255,0.85); }
 
-.cat-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; padding:1.25rem 6vw 0; }
-.ctab { padding:0.4rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.45); font-size:0.75rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
-.ctab.active { background:rgba(255,255,255,0.12); color:var(--cream); border-color:rgba(255,255,255,0.25); }
-.ctab:hover:not(.active) { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+/* ─── Ticker ────────────────────────────────────────────────── */
+.ticker-wrap { background:rgba(255,255,255,0.04); border-top:1px solid rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); overflow:hidden; padding:0.5rem 0; }
+.ticker-track { display:flex; white-space:nowrap; animation:tick 40s linear infinite; }
+.ticker-track:hover { animation-play-state:paused; }
+.tick-item { display:inline-flex; align-items:center; gap:0.5rem; padding:0 2rem; font-size:0.78rem; border-right:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:color 0.15s; }
+.tick-item:hover { color:var(--harvest); }
+.tick-crop { font-weight:700; color:rgba(250,245,236,0.9); }
+.tick-price { color:rgba(250,245,236,0.5); }
+.tick-up   { color:#4ade80; font-size:0.68rem; }
+.tick-dn   { color:#f87171; font-size:0.68rem; }
+.tick-flat { color:rgba(255,255,255,0.2); font-size:0.68rem; }
+@keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-.prices-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; padding:1.5rem 6vw; }
-.price-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:1.3rem; cursor:pointer; transition:background 0.2s; }
-.price-card:hover { background:rgba(255,255,255,0.1); }
-.pc-crop { font-weight:700; color:var(--cream); font-size:0.95rem; margin-bottom:0.15rem; }
-.pc-market { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-bottom:0.65rem; }
-.pc-price { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:900; color:var(--harvest); line-height:1; }
-.pc-unit { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-left:0.2rem; }
-.pc-range { font-size:0.7rem; color:rgba(250,245,236,0.4); margin-top:0.25rem; }
-.pc-trend-up   { color:#4ade80; font-size:0.75rem; font-weight:600; }
-.pc-trend-down { color:#f87171; font-size:0.75rem; font-weight:600; }
-.pc-trend-flat { color:rgba(255,255,255,0.3); font-size:0.75rem; }
+/* ─── Controls bar ──────────────────────────────────────────── */
+.controls-bar { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 6vw 0; flex-wrap:wrap; gap:1rem; }
+.cat-tabs { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.ctab { padding:0.38rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); font-size:0.75rem; font-weight:600; cursor:pointer; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.18s; }
+.ctab.active { background:rgba(255,255,255,0.12); color:var(--cream); border-color:rgba(255,255,255,0.2); }
+.ctab:hover:not(.active) { color:rgba(255,255,255,0.7); border-color:rgba(255,255,255,0.18); }
+.sort-select { padding:0.38rem 1rem; border-radius:100px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:rgba(250,245,236,0.7); font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer; }
+.sort-select option { background:#1a1008; color:var(--cream); }
 
-/* Detail panel */
-.detail-panel { background:rgba(0,0,0,0.3); border-top:1px solid rgba(255,255,255,0.08); padding:2rem 6vw; display:none; }
-.detail-panel.open { display:block; }
-.dp-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; }
-.dp-title { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--cream); }
-.dp-close { background:rgba(255,255,255,0.1); border:none; color:var(--cream); border-radius:8px; padding:0.4rem 0.8rem; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; }
-.dp-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
-.dp-stat { background:rgba(255,255,255,0.06); border-radius:14px; padding:1rem; }
-.dp-stat-num { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--harvest); }
-.dp-stat-label { font-size:0.7rem; color:rgba(250,245,236,0.45); margin-top:0.2rem; }
-.history-bars { display:flex; align-items:flex-end; gap:6px; height:80px; }
-.bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
-.bar { background:rgba(232,160,32,0.6); border-radius:4px 4px 0 0; width:100%; transition:background 0.2s; }
-.bar:hover { background:var(--harvest); }
-.bar-label { font-size:0.6rem; color:rgba(250,245,236,0.35); white-space:nowrap; }
-.nearby-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:0.75rem; margin-top:1rem; }
-.nearby-item { background:rgba(255,255,255,0.05); border-radius:12px; padding:0.85rem; display:flex; align-items:center; gap:0.75rem; cursor:pointer; }
-.nearby-item:hover { background:rgba(255,255,255,0.09); }
+/* ─── Grid ──────────────────────────────────────────────────── */
+.prices-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; padding:1.25rem 6vw 3rem; }
 
-@media(max-width:700px) { .dp-stats { grid-template-columns:1fr 1fr; } }
+/* ─── Price card ────────────────────────────────────────────── */
+.price-card {
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px; padding:1.4rem 1.3rem 1.1rem;
+  cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden;
+}
+.price-card::before {
+  content:''; position:absolute; inset:0; opacity:0;
+  background:linear-gradient(135deg,rgba(232,160,32,0.08) 0%, transparent 60%);
+  transition:opacity 0.2s;
+}
+.price-card:hover { background:rgba(255,255,255,0.09); border-color:rgba(255,255,255,0.15); transform:translateY(-2px); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.price-card:hover::before { opacity:1; }
+.price-card.active-card { border-color:rgba(232,160,32,0.5); background:rgba(232,160,32,0.07); }
+
+.pc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; }
+.pc-emoji { font-size:1.6rem; line-height:1; }
+.pc-trend-badge {
+  display:inline-flex; align-items:center; gap:0.25rem;
+  padding:0.18rem 0.55rem; border-radius:100px; font-size:0.68rem; font-weight:700;
+}
+.tb-up   { background:rgba(74,222,128,0.15); color:#4ade80; }
+.tb-down { background:rgba(248,113,113,0.15); color:#f87171; }
+.tb-flat { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.35); }
+
+.pc-crop   { font-weight:700; color:var(--cream); font-size:0.95rem; margin-bottom:0.12rem; }
+.pc-market { font-size:0.68rem; color:rgba(250,245,236,0.35); margin-bottom:0.9rem; }
+.pc-price  { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--harvest); line-height:1; }
+.pc-denom  { font-size:0.72rem; color:rgba(250,245,236,0.4); font-family:'DM Sans',sans-serif; font-weight:400; margin-left:0.15rem; }
+.pc-range  { font-size:0.7rem; color:rgba(250,245,236,0.3); margin-top:0.3rem; }
+
+/* Mini spark bar */
+.pc-spark  { display:flex; align-items:flex-end; gap:2px; height:24px; margin-top:0.75rem; }
+.spark-bar { flex:1; border-radius:2px 2px 0 0; background:rgba(232,160,32,0.35); transition:background 0.15s; min-height:3px; }
+.price-card:hover .spark-bar { background:rgba(232,160,32,0.6); }
+
+/* Listing count pill */
+.pc-listings { display:inline-flex; align-items:center; gap:0.3rem; margin-top:0.65rem; font-size:0.68rem; color:rgba(250,245,236,0.3); }
+.pc-listings-dot { width:5px; height:5px; border-radius:50%; background:var(--leaf); }
+
+/* ─── Detail Drawer ─────────────────────────────────────────── */
+.drawer-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:400; }
+.drawer-overlay.open { display:block; }
+.drawer {
+  position:fixed; right:0; top:0; bottom:0; width:480px; max-width:100vw;
+  background:#1e1208; border-left:1px solid rgba(255,255,255,0.08);
+  z-index:401; overflow-y:auto; transform:translateX(100%);
+  transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex; flex-direction:column;
+}
+.drawer.open { transform:translateX(0); }
+
+.drawer-header { padding:1.75rem 1.75rem 0; display:flex; justify-content:space-between; align-items:flex-start; position:sticky; top:0; background:#1e1208; z-index:1; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.07); }
+.dr-title  { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:var(--cream); }
+.dr-sub    { font-size:0.75rem; color:rgba(250,245,236,0.35); margin-top:0.2rem; }
+.drawer-close { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.08); border:none; color:rgba(250,245,236,0.6); cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
+.drawer-close:hover { background:rgba(255,255,255,0.14); }
+
+.drawer-body { padding:1.5rem 1.75rem 2rem; flex:1; }
+
+/* Drawer stat strip */
+.dr-stats { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.5rem; }
+.dr-stat { background:rgba(255,255,255,0.05); border-radius:14px; padding:1rem 1.1rem; }
+.dr-stat-num { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:var(--harvest); line-height:1; }
+.dr-stat-label { font-size:0.68rem; color:rgba(250,245,236,0.35); margin-top:0.25rem; letter-spacing:0.3px; }
+
+/* National comparison banner */
+.dr-national { background:rgba(58,125,44,0.12); border:1px solid rgba(58,125,44,0.2); border-radius:12px; padding:0.85rem 1rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.dr-national-label { font-size:0.78rem; color:rgba(250,245,236,0.6); }
+.dr-national-val { font-weight:700; color:#4ade80; font-size:0.88rem; }
+
+/* History chart */
+.dr-section-label { font-size:0.68rem; font-weight:700; letter-spacing:1.8px; text-transform:uppercase; color:rgba(250,245,236,0.3); margin-bottom:0.85rem; }
+.history-chart { display:flex; align-items:flex-end; gap:5px; height:96px; margin-bottom:0.5rem; }
+.hc-col { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
+.hc-bar { width:100%; border-radius:3px 3px 0 0; background:linear-gradient(180deg,rgba(232,160,32,0.8) 0%,rgba(232,160,32,0.4) 100%); position:relative; transition:all 0.2s; cursor:pointer; }
+.hc-bar:hover { background:linear-gradient(180deg,var(--harvest) 0%,rgba(232,160,32,0.7) 100%); }
+.hc-bar-tip { display:none; position:absolute; top:-30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:var(--cream); font-size:0.62rem; padding:0.2rem 0.45rem; border-radius:5px; white-space:nowrap; z-index:1; }
+.hc-bar:hover .hc-bar-tip { display:block; }
+.hc-label { font-size:0.58rem; color:rgba(250,245,236,0.25); white-space:nowrap; }
+.history-empty { color:rgba(250,245,236,0.25); font-size:0.82rem; padding:1.5rem 0; text-align:center; }
+
+/* Nearby listings in drawer */
+.nearby-item { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.9rem 1rem; display:flex; align-items:center; gap:0.85rem; cursor:pointer; transition:background 0.15s; margin-bottom:0.6rem; }
+.nearby-item:hover { background:rgba(255,255,255,0.08); }
+.ni-emoji { font-size:1.5rem; flex-shrink:0; }
+.ni-title { font-size:0.85rem; font-weight:600; color:var(--cream); }
+.ni-meta  { font-size:0.7rem; color:rgba(250,245,236,0.4); margin-top:0.1rem; }
+.ni-price { font-weight:700; color:var(--harvest); font-size:0.88rem; margin-left:auto; white-space:nowrap; }
+
+/* Browse CTA in drawer */
+.dr-cta { display:block; width:100%; padding:0.85rem; background:var(--harvest); color:var(--earth); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; text-align:center; text-decoration:none; transition:background 0.2s; margin-top:1.25rem; }
+.dr-cta:hover { background:#d4901c; }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media(max-width:900px)  { .prices-grid { grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); } }
+@media(max-width:600px)  { .prices-grid { grid-template-columns:1fr 1fr; gap:0.75rem; } .ph-hero { padding:2rem 5vw 0; } .controls-bar { padding:1rem 5vw 0; } .prices-grid { padding:1rem 5vw 2rem; } }
+@media(max-width:420px)  { .prices-grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
-<nav id="mainNav" style="background:rgba(45,27,14,0.95)">
+<nav id="mainNav">
   <a href="/" class="logo">Farm<span>Ad</span></a>
   <ul class="nav-links" id="navLinks"></ul>
 </nav>
 
 <div class="prices-page">
-  <div class="prices-controls">
-    <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--harvest);margin-bottom:0.4rem">Market Intelligence</div>
-    <h1>Live Market <em>Prices</em></h1>
-    <p>Real-time price data from major markets across Kenya</p>
-    <div class="county-pills" id="countyPills"></div>
+
+  <!-- Hero -->
+  <div class="ph-hero">
+    <div class="ph-hero-inner">
+      <div class="ph-eyebrow">Market Intelligence</div>
+      <h1 class="ph-title">Live Market <em>Prices</em></h1>
+      <p class="ph-subtitle">Real-time price data from Wakulima, Kongowea and major markets across Kenya — updated daily.</p>
+      <div class="ph-search">
+        <span style="font-size:1rem;opacity:0.4">🔍</span>
+        <input type="text" id="priceSearch" placeholder="Search crop e.g. tomatoes, maize…" oninput="onSearch(this.value)">
+      </div>
+      <div class="ph-counties" id="countyPills"></div>
+    </div>
   </div>
 
-  <div class="cat-tabs" id="catTabs">
-    <button class="ctab active" data-cat="" onclick="setCat('',this)">All</button>
-    <button class="ctab" data-cat="vegetables" onclick="setCat('vegetables',this)">🥬 Vegetables</button>
-    <button class="ctab" data-cat="fruits" onclick="setCat('fruits',this)">🍎 Fruits</button>
-    <button class="ctab" data-cat="grains" onclick="setCat('grains',this)">🌾 Grains</button>
-    <button class="ctab" data-cat="dairy" onclick="setCat('dairy',this)">🥛 Dairy</button>
-    <button class="ctab" data-cat="legumes" onclick="setCat('legumes',this)">🫘 Legumes</button>
+  <!-- Price ticker -->
+  <div class="ticker-wrap" id="tickerWrap" style="display:none">
+    <div class="ticker-track" id="tickerTrack"></div>
   </div>
 
+  <!-- Controls bar -->
+  <div class="controls-bar">
+    <div class="cat-tabs" id="catTabs">
+      <button class="ctab active" onclick="setCat('',this)">All</button>
+      <button class="ctab" onclick="setCat('vegetables',this)">🥬 Veg</button>
+      <button class="ctab" onclick="setCat('fruits',this)">🍎 Fruits</button>
+      <button class="ctab" onclick="setCat('grains',this)">🌾 Grains</button>
+      <button class="ctab" onclick="setCat('dairy',this)">🥛 Dairy</button>
+      <button class="ctab" onclick="setCat('legumes',this)">🫘 Legumes</button>
+    </div>
+    <select class="sort-select" id="sortSel" onchange="loadPrices()">
+      <option value="crop">Sort: A–Z</option>
+      <option value="price_avg_desc">Price: High first</option>
+      <option value="price_avg_asc">Price: Low first</option>
+      <option value="trend_pct">Biggest movers</option>
+    </select>
+  </div>
+
+  <!-- Grid -->
   <div class="prices-grid" id="pricesGrid">
-    ${Array(12).fill(`<div class="skeleton" style="height:120px;border-radius:18px;background:rgba(255,255,255,0.06)"></div>`).join('')}
-  </div>
-
-  <div class="detail-panel" id="detailPanel">
-    <div id="detailContent"></div>
+    ${[...Array(16)].map(()=>`<div class="skeleton" style="height:170px;border-radius:20px;background:rgba(255,255,255,0.04)"></div>`).join('')}
   </div>
 </div>
 
+<!-- Detail drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="dr-title" id="drTitle">—</div>
+      <div class="dr-sub"  id="drSub">—</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div style="color:rgba(250,245,236,0.3);text-align:center;padding:3rem 0">Loading…</div>
+  </div>
+</aside>
+
 <script src="/shared.js"></script>
 <script>
-const TOP_COUNTIES = ['Nairobi','Kiambu','Nakuru','Mombasa','Kisumu','Embu','Meru','Uasin Gishu','Muranga'];
-let activeCounty = 'Nairobi', activeCat = '';
+const TOP_COUNTIES = ['Nairobi','Kiambu','Nakuru','Mombasa','Kisumu','Embu','Meru','Uasin Gishu',"Murang'a",'Trans Nzoia'];
+let activeCounty = 'Nairobi', activeCat = '', searchQ = '', allPrices = [];
 
-// Build county pills
+/* ── County pills ── */
 document.getElementById('countyPills').innerHTML = TOP_COUNTIES.map(c =>
   `<button class="cpill${c===activeCounty?' active':''}" onclick="setCounty('${c}',this)">${c}</button>`
 ).join('');
 
-async function loadPrices() {
-  const grid = document.getElementById('pricesGrid');
-  grid.innerHTML = Array(10).fill(`<div class="skeleton" style="height:120px;border-radius:18px;background:rgba(255,255,255,0.06)"></div>`).join('');
-  const p = new URLSearchParams({ county:activeCounty, limit:40 });
-  if (activeCat) p.set('category',activeCat);
-  const { ok, data } = await apiFetch(`/prices?${p}`);
-  if (!ok || !data.data?.prices?.length) {
-    grid.innerHTML=`<div style="color:rgba(250,245,236,0.4);padding:3rem;grid-column:1/-1;text-align:center">No price data for ${activeCounty} yet.</div>`;
-    return;
-  }
-  grid.innerHTML = data.data.prices.map(p => buildPriceCard(p)).join('');
+/* ── Search debounce ── */
+let searchTimer;
+function onSearch(val) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { searchQ = val.trim().toLowerCase(); renderGrid(); }, 220);
 }
 
+/* ── Sort helper ── */
+function sortedPrices(arr) {
+  const val = document.getElementById('sortSel').value;
+  const a = [...arr];
+  if (val === 'price_avg_desc') return a.sort((x,y)=>y.price_avg-x.price_avg);
+  if (val === 'price_avg_asc')  return a.sort((x,y)=>x.price_avg-y.price_avg);
+  if (val === 'trend_pct')      return a.sort((x,y)=>Math.abs(y.trend_pct)-Math.abs(x.trend_pct));
+  return a.sort((x,y)=>x.crop.localeCompare(y.crop));
+}
+
+/* ── Load prices ── */
+async function loadPrices() {
+  const grid = document.getElementById('pricesGrid');
+  grid.innerHTML = [...Array(12)].map(()=>`<div class="skeleton" style="height:170px;border-radius:20px;background:rgba(255,255,255,0.04)"></div>`).join('');
+
+  const p = new URLSearchParams({ county: activeCounty, limit: 60 });
+  if (activeCat) p.set('category', activeCat);
+  const { ok, data } = await apiFetch(`/prices?${p}`);
+
+  if (!ok || !data.data?.prices?.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:rgba(250,245,236,0.3)">
+      <div style="font-size:2.5rem;margin-bottom:1rem">📊</div>
+      <div style="font-size:1rem;font-weight:600;color:rgba(250,245,236,0.5)">No price data for ${activeCounty} yet</div>
+      <div style="font-size:0.82rem;margin-top:0.4rem">Try a different county</div>
+    </div>`;
+    return;
+  }
+
+  allPrices = data.data.prices;
+  buildTicker(allPrices);
+  renderGrid();
+}
+
+/* ── Render filtered/sorted grid ── */
+function renderGrid() {
+  const grid = document.getElementById('pricesGrid');
+  let prices = allPrices;
+  if (searchQ) prices = prices.filter(p => p.crop.toLowerCase().includes(searchQ) || (p.market_name||'').toLowerCase().includes(searchQ));
+
+  if (!prices.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:rgba(250,245,236,0.3)">No results for "${searchQ}"</div>`;
+    return;
+  }
+  grid.innerHTML = sortedPrices(prices).map(p => buildPriceCard(p)).join('');
+}
+
+/* ── Price card ── */
 function buildPriceCard(p) {
-  const trendIcon = p.trend==='up' ? `<span class="pc-trend-up">▲ ${p.trend_pct}%</span>`
-                  : p.trend==='down' ? `<span class="pc-trend-down">▼ ${Math.abs(p.trend_pct)}%</span>`
-                  : `<span class="pc-trend-flat">— stable</span>`;
-  return `<div class="price-card" onclick="openDetail('${encodeURIComponent(p.crop)}','${p.county}')">
+  const trend = p.trend;
+  const pct   = parseFloat(p.trend_pct) || 0;
+  const trendBadge = trend==='up'
+    ? `<span class="pc-trend-badge tb-up">▲ ${pct}%</span>`
+    : trend==='down'
+    ? `<span class="pc-trend-badge tb-down">▼ ${Math.abs(pct)}%</span>`
+    : `<span class="pc-trend-badge tb-flat">— stable</span>`;
+
+  // Mini 5-bar spark (simulated from price_low/avg/high pattern)
+  const lo = parseFloat(p.price_low), av = parseFloat(p.price_avg), hi = parseFloat(p.price_high);
+  const sparkVals = [lo, (lo+av)/2, av, (av+hi)/2, hi];
+  const sparkMax  = hi || 1;
+  const sparkBars = sparkVals.map(v => {
+    const h = Math.max(8, Math.round((v/sparkMax)*100));
+    return `<div class="spark-bar" style="height:${h}%"></div>`;
+  }).join('');
+
+  const emoji = CAT_EMOJI[p.category] || '🌿';
+
+  return `<div class="price-card" id="pc-${CSS.escape(p.crop+p.county)}" onclick="openDetail('${encodeURIComponent(p.crop)}','${encodeURIComponent(p.county)}',this)">
+    <div class="pc-top">
+      <span class="pc-emoji">${emoji}</span>
+      ${trendBadge}
+    </div>
     <div class="pc-crop">${p.crop}</div>
-    <div class="pc-market">${p.market_name||p.county}</div>
-    <div><span class="pc-price">KSh ${fmtPrice(p.price_avg)}</span><span class="pc-unit">/${p.unit}</span></div>
+    <div class="pc-market">${p.market_name || p.county}</div>
+    <div>
+      <span class="pc-price">KSh ${fmtPrice(p.price_avg)}</span><span class="pc-denom">/${p.unit}</span>
+    </div>
     <div class="pc-range">KSh ${fmtPrice(p.price_low)} – ${fmtPrice(p.price_high)}</div>
-    <div style="margin-top:0.4rem">${trendIcon}</div>
+    <div class="pc-spark">${sparkBars}</div>
+    ${p.listing_count > 0 ? `<div class="pc-listings"><div class="pc-listings-dot"></div>${p.listing_count} active listing${p.listing_count>1?'s':''}</div>` : ''}
   </div>`;
 }
 
-async function openDetail(encodedCrop, county) {
-  const crop = decodeURIComponent(encodedCrop);
-  const panel = document.getElementById('detailPanel');
-  const content = document.getElementById('detailContent');
-  panel.classList.add('open');
-  content.innerHTML = `<div style="color:rgba(250,245,236,0.4);padding:2rem;text-align:center">Loading…</div>`;
-  panel.scrollIntoView({ behavior:'smooth' });
-  const { ok, data } = await apiFetch(`/prices/${encodedCrop}/${encodeURIComponent(county)}`);
-  if (!ok) { content.innerHTML='<p style="color:rgba(250,245,236,0.4)">Could not load detail.</p>'; return; }
-  const d = data.data;
-  const c = d.current;
-  const hist = d.history || [];
-  const maxBar = Math.max(...hist.map(h=>parseFloat(h.price_avg)),1);
-
-  content.innerHTML = `
-    <div class="dp-header">
-      <div>
-        <div class="dp-title">${c.crop}</div>
-        <div style="font-size:0.8rem;color:rgba(250,245,236,0.45)">${c.market_name||county} · Updated ${fmtDate(c.price_date)}</div>
-      </div>
-      <button class="dp-close" onclick="document.getElementById('detailPanel').classList.remove('open')">✕ Close</button>
-    </div>
-    <div class="dp-stats">
-      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_avg)}</div><div class="dp-stat-label">Average Price / ${c.unit}</div></div>
-      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_low)}</div><div class="dp-stat-label">Lowest / ${c.unit}</div></div>
-      <div class="dp-stat"><div class="dp-stat-num">KSh ${fmtPrice(c.price_high)}</div><div class="dp-stat-label">Highest / ${c.unit}</div></div>
-      <div class="dp-stat"><div class="dp-stat-num">${d.insights?.vs_national_label||'—'}</div><div class="dp-stat-label">vs National Avg</div></div>
-    </div>
-    ${hist.length ? `
-    <div style="margin-bottom:1.5rem">
-      <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,245,236,0.35);margin-bottom:0.75rem">12-Week Price History</div>
-      <div class="history-bars">
-        ${hist.map(h=>{const pct=Math.round((parseFloat(h.price_avg)/maxBar)*100);return`<div class="bar-wrap"><div class="bar" style="height:${pct}%" title="KSh ${h.price_avg}"></div><div class="bar-label">${h.week_start?.slice(5)}</div></div>`;}).join('')}
-      </div>
-    </div>` : ''}
-    ${d.nearby_listings?.length ? `
-    <div>
-      <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,245,236,0.35);margin-bottom:0.75rem">Active Listings Nearby</div>
-      <div class="nearby-grid">
-        ${d.nearby_listings.map(l=>`<div class="nearby-item" onclick="window.location.href='/pages/browse.html'">
-          <div style="font-size:1.5rem">${CAT_EMOJI.vegetables}</div>
-          <div><div style="font-size:0.85rem;font-weight:600;color:var(--cream)">${l.title}</div>
-          <div style="font-size:0.72rem;color:rgba(250,245,236,0.45)">${l.farmer_name} · KSh ${fmtPrice(l.price_per_unit)}/${l.unit}</div></div>
-        </div>`).join('')}
-      </div>
-    </div>` : ''}`;
+/* ── Ticker ── */
+function buildTicker(prices) {
+  const wrap  = document.getElementById('tickerWrap');
+  const track = document.getElementById('tickerTrack');
+  const items = [...prices, ...prices].map(p => {
+    const arrow = p.trend==='up'?'▲':p.trend==='down'?'▼':'—';
+    const cls   = p.trend==='up'?'tick-up':p.trend==='down'?'tick-dn':'tick-flat';
+    return `<span class="tick-item" onclick="openDetail('${encodeURIComponent(p.crop)}','${encodeURIComponent(p.county)}',null)">
+      <span class="tick-crop">${p.crop}</span>
+      <span class="tick-price">KSh ${fmtPrice(p.price_avg)}/${p.unit}</span>
+      <span class="${cls}">${arrow}</span>
+    </span>`;
+  }).join('');
+  track.innerHTML = items;
+  wrap.style.display = 'block';
 }
 
+/* ── Detail drawer ── */
+let activeCardEl = null;
+async function openDetail(encodedCrop, encodedCounty, cardEl) {
+  // Highlight active card
+  if (activeCardEl) activeCardEl.classList.remove('active-card');
+  if (cardEl) { cardEl.classList.add('active-card'); activeCardEl = cardEl; }
+
+  const crop   = decodeURIComponent(encodedCrop);
+  const county = decodeURIComponent(encodedCounty);
+
+  document.getElementById('drTitle').textContent = crop;
+  document.getElementById('drSub').textContent   = `${county} · loading…`;
+  document.getElementById('drawerBody').innerHTML = `<div style="color:rgba(250,245,236,0.3);text-align:center;padding:3rem 0">
+    <div style="font-size:2rem;margin-bottom:0.5rem">⏳</div>Loading data…</div>`;
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  const { ok, data } = await apiFetch(`/prices/${encodedCrop}/${encodedCounty}`);
+
+  if (!ok) {
+    document.getElementById('drawerBody').innerHTML = `<p style="color:rgba(250,245,236,0.3)">Could not load detail.</p>`;
+    return;
+  }
+
+  const d    = data.data;
+  const c    = d.current;
+  const hist = d.history || [];
+  const ins  = d.insights || {};
+  const nearby = d.nearby_listings || [];
+
+  document.getElementById('drSub').textContent = `${c.market_name || county} · Updated ${fmtDate(c.price_date)}`;
+
+  /* History chart */
+  let histHtml = `<div class="history-empty">No history data yet</div>`;
+  if (hist.length) {
+    const maxH = Math.max(...hist.map(h => parseFloat(h.price_avg)), 1);
+    const bars = hist.map(h => {
+      const pct = Math.max(5, Math.round((parseFloat(h.price_avg)/maxH)*100));
+      const wk  = (h.week_start||'').slice(5);
+      return `<div class="hc-col">
+        <div class="hc-bar" style="height:${pct}%">
+          <div class="hc-bar-tip">KSh ${fmtPrice(h.price_avg)}</div>
+        </div>
+        <div class="hc-label">${wk}</div>
+      </div>`;
+    }).join('');
+    histHtml = `<div class="history-chart">${bars}</div>`;
+  }
+
+  /* National comparison */
+  const natHtml = ins.vs_national_label ? `
+    <div class="dr-national">
+      <span class="dr-national-label">vs National Average</span>
+      <span class="dr-national-val">${ins.vs_national_label}</span>
+    </div>` : '';
+
+  /* Nearby listings */
+  const nearbyHtml = nearby.length ? `
+    <div class="dr-section-label" style="margin-top:1.5rem">Active Listings Nearby</div>
+    ${nearby.map(l => `
+      <div class="nearby-item" onclick="window.location.href='/pages/browse.html'">
+        <span class="ni-emoji">${CAT_EMOJI[l.category]||'🌿'}</span>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">${l.title}</div>
+          <div class="ni-meta">${l.farmer_name} · ${l.location||county}</div>
+        </div>
+        <div class="ni-price">KSh ${fmtPrice(l.price_per_unit)}/${l.unit}</div>
+      </div>`).join('')}` : '';
+
+  document.getElementById('drawerBody').innerHTML = `
+    <div class="dr-stats">
+      <div class="dr-stat"><div class="dr-stat-num">KSh ${fmtPrice(c.price_avg)}</div><div class="dr-stat-label">Avg Price / ${c.unit}</div></div>
+      <div class="dr-stat"><div class="dr-stat-num">${c.trend==='up'?'▲':''}${c.trend==='down'?'▼':''} ${Math.abs(parseFloat(c.trend_pct)||0)}%</div><div class="dr-stat-label">Week-on-week</div></div>
+      <div class="dr-stat"><div class="dr-stat-num">KSh ${fmtPrice(c.price_low)}</div><div class="dr-stat-label">Lowest / ${c.unit}</div></div>
+      <div class="dr-stat"><div class="dr-stat-num">KSh ${fmtPrice(c.price_high)}</div><div class="dr-stat-label">Highest / ${c.unit}</div></div>
+    </div>
+
+    ${natHtml}
+
+    <div class="dr-section-label">12-Week Price History</div>
+    ${histHtml}
+
+    ${nearbyHtml}
+
+    <a href="/pages/browse.html?q=${encodeURIComponent(crop)}" class="dr-cta">Browse ${crop} Listings →</a>`;
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  if (activeCardEl) { activeCardEl.classList.remove('active-card'); activeCardEl = null; }
+}
+
+/* ── Controls ── */
 function setCounty(c, btn) {
   activeCounty = c;
-  document.querySelectorAll('.cpill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.cpill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('detailPanel').classList.remove('open');
+  closeDrawer();
   loadPrices();
 }
 
 function setCat(c, btn) {
   activeCat = c;
-  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  loadPrices();
+  renderGrid();
 }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 
 loadPrices();
 </script>
