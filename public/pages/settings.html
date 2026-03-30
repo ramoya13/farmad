@@ -147,11 +147,16 @@
 }
 .signout-btn:hover { background: #fef2f2; border-color: #dc2626; }
 
-@media(max-width: 600px) {
-  .settings-wrap { padding: 1.5rem 1.25rem 4rem; }
+@media(max-width: 640px) {
+  .settings-wrap { padding: 1.5rem 1.25rem 6rem; }
   .field-row { grid-template-columns: 1fr; }
-  .profile-hero { flex-wrap: wrap; }
-  .ph-back { width: 100%; margin-top: 0.5rem; }
+  .profile-hero { flex-wrap: wrap; gap:0.75rem; padding:1.5rem; }
+  .ph-back { width: 100%; margin-top: 0.25rem; }
+  .ph-avatar { width:52px; height:52px; font-size:1.3rem; }
+  .ss-header { padding:0 0 0.7rem; margin-bottom:1rem; }
+  .save-btn { width:100%; justify-content:center; padding:0.75rem; }
+  .signout-row { flex-direction:column; align-items:flex-start; gap:0.75rem; }
+  .signout-btn { width:100%; text-align:center; }
 }
 </style>
 </head>

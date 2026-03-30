@@ -42,6 +42,18 @@
 .payment-row { background:var(--mist); border-radius:12px; padding:0.85rem 1rem; font-size:0.82rem; display:flex; justify-content:space-between; align-items:center; }
 
 @media(max-width:800px) { .orders-layout { grid-template-columns:1fr; } .orders-sidebar { position:static; } }
+@media(max-width:640px) {
+  .orders-layout { padding:1.25rem 4vw; gap:1rem; }
+  .orders-sidebar { border-radius:16px; padding:1rem; }
+  .status-filter { flex-direction:row; flex-wrap:wrap; gap:0.4rem; }
+  .sf-item { padding:0.35rem 0.75rem; font-size:0.75rem; border-radius:100px; border:1.5px solid rgba(92,51,23,0.15); width:auto; background:white; }
+  .sf-item.active { background:var(--leaf); color:white; border-color:var(--leaf); }
+  .order-card-header { padding:1rem; flex-wrap:wrap; gap:0.5rem; }
+  .order-card-body { padding:0 1rem 1rem; }
+  .items-table { font-size:0.75rem; }
+  .order-actions-row { gap:0.4rem; }
+  .action-btn { padding:0.4rem 0.75rem; font-size:0.75rem; }
+}
 </style>
 </head>
 <body>

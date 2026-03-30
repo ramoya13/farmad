@@ -177,8 +177,28 @@ body { background:#1a1008; }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media(max-width:900px)  { .prices-grid { grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); } }
-@media(max-width:600px)  { .prices-grid { grid-template-columns:1fr 1fr; gap:0.75rem; } .ph-hero { padding:2rem 5vw 0; } .controls-bar { padding:1rem 5vw 0; } .prices-grid { padding:1rem 5vw 2rem; } }
-@media(max-width:420px)  { .prices-grid { grid-template-columns:1fr; } }
+@media(max-width:640px) {
+  .ph-hero { padding:2rem 5vw 0; }
+  .ph-title { font-size:2rem; }
+  .ph-subtitle { font-size:0.82rem; }
+  .ph-search { margin-bottom:1rem; }
+  .ph-counties { gap:0.4rem; }
+  .cpill { padding:0.32rem 0.85rem; font-size:0.72rem; }
+  .controls-bar { padding:1rem 5vw 0; flex-direction:column; align-items:stretch; gap:0.75rem; }
+  .sort-select { width:100%; border-radius:12px; }
+  .prices-grid { grid-template-columns:1fr 1fr; gap:0.75rem; padding:1rem 5vw 5rem; }
+  .price-card { padding:1rem 0.9rem 0.85rem; border-radius:16px; }
+  .pc-price { font-size:1.5rem; }
+  /* Full-screen drawer on mobile */
+  .drawer { width:100%; border-left:none; border-top:1px solid rgba(255,255,255,0.08); border-radius:24px 24px 0 0; top:auto; height:92vh; transform:translateY(100%); }
+  .drawer.open { transform:translateY(0); }
+  .drawer-header { padding:1.25rem 1.25rem 0.75rem; }
+  .drawer-body { padding:1rem 1.25rem 5rem; }
+  .dr-stats { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:420px) {
+  .prices-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>

@@ -494,25 +494,83 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 560px) {
-    .modal { padding: 1.5rem; border-radius: 20px; }
-    .modal-overlay { padding: 0.75rem; }
-    .listing-modal { padding: 0.75rem; }
-  }
+  /* ── Tablet ── */
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; }
-    .hero-right { min-height: 350px; }
-    .hero-left { padding: 8rem 6vw 3rem; }
+    .hero-right { min-height: 300px; }
+    .hero-left { padding: 7rem 6vw 3rem; }
+    .how-section { padding: 4rem 6vw; }
     .how-header { grid-template-columns: 1fr; gap: 1.5rem; }
-    .steps-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .categories-section { padding: 4rem 6vw; }
     .categories-grid { grid-template-columns: repeat(2, 1fr); }
     .cat-card:first-child { grid-column: span 2; grid-row: span 1; }
-    .features-grid { grid-template-columns: 1fr; }
+    .features-section { padding: 4rem 6vw; }
+    .features-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .testimonials-section { padding: 4rem 6vw; }
     .testimonials-grid { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
-    .nav-links { display: none; }
+    .prices-section { padding: 4rem 6vw; }
     .prices-grid { grid-template-columns: repeat(2, 1fr); }
-    .listings-grid { grid-template-columns: 1fr; }
+    .listings-section { padding: 4rem 6vw; }
+    .listings-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .cta-section { padding: 4rem 6vw; }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 560px) {
+    /* Nav */
+    nav { padding: 0.85rem 5vw; }
+    .nav-links { display: none; }
+
+    /* Hero */
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 6rem 5vw 2.5rem; }
+    .hero h1 { font-size: 2.4rem; }
+    .hero-desc { font-size: 0.95rem; margin-bottom: 1.75rem; }
+    .hero-actions { flex-direction: column; gap: 0.75rem; }
+    .btn-primary, .btn-outline { text-align: center; padding: 0.85rem 1.5rem; }
+    .hero-stats { gap: 1.5rem; }
+    .stat-num { font-size: 1.6rem; }
+
+    /* Sections */
+    .how-section, .categories-section, .prices-section, .listings-section,
+    .features-section, .testimonials-section, .cta-section { padding: 3rem 5vw; }
+
+    /* Steps */
+    .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .step-card { padding: 1.5rem; }
+
+    /* Categories */
+    .categories-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .cat-card:first-child { grid-column: span 2; }
+
+    /* Prices */
+    .prices-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* Listings */
+    .listings-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .listings-filters { gap: 0.4rem; }
+    .filter-pill { padding: 0.35rem 0.85rem; font-size: 0.75rem; }
+
+    /* Features */
+    .features-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+    /* Footer */
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .footer-col:nth-child(3), .footer-col:nth-child(4) { display: none; }
+    footer { padding: 3rem 5vw 5rem; }
+    .footer-bottom { flex-direction: column; gap: 0.75rem; text-align: center; }
+
+    /* Modals — sheet from bottom */
+    .modal { padding: 1.5rem 1.25rem 2rem; border-radius: 24px 24px 0 0; }
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .listing-modal { padding: 0; align-items: flex-end; }
+    .listing-modal-inner { border-radius: 24px 24px 0 0; max-height: 94vh; }
+
+    /* Dashboard slide panel */
+    .dashboard-panel { width: 100%; border-radius: 0; }
   }
 </style>
 </head>

@@ -148,4 +148,59 @@ function renderFooter() {
   </footer>`;
 }
 
-document.addEventListener('DOMContentLoaded', () => { updateNav(); initReveal(); });
+document.addEventListener('DOMContentLoaded', () => { updateNav(); initReveal(); injectMobileNav(); });
+
+function injectMobileNav() {
+  const user = getUser();
+  const path = window.location.pathname;
+  const isDash    = path.includes('dashboard');
+  const isBrowse  = path.includes('browse');
+  const isPrices  = path.includes('prices');
+  const isOrders  = path.includes('orders');
+  const isListings= path.includes('my-listings');
+  const isHome    = path === '/' || path.endsWith('index.html');
+
+  let items = '';
+  if (user) {
+    const isFarmer = user.role === 'farmer';
+    items = `
+      <a href="/" class="mnav-item${isHome?' active':''}">
+        <span class="mnav-icon">🏠</span><span>Home</span>
+      </a>
+      <a href="/pages/browse.html" class="mnav-item${isBrowse?' active':''}">
+        <span class="mnav-icon">🛒</span><span>Browse</span>
+      </a>
+      ${isFarmer
+        ? `<a href="/pages/my-listings.html" class="mnav-item primary${isListings?' active':''}">
+             <span class="mnav-icon">＋</span><span>List</span>
+           </a>`
+        : `<a href="/pages/browse.html" class="mnav-item primary">
+             <span class="mnav-icon">🔍</span><span>Search</span>
+           </a>`}
+      <a href="/pages/orders.html" class="mnav-item${isOrders?' active':''}">
+        <span class="mnav-icon">📦</span><span>Orders</span>
+      </a>
+      <a href="/pages/dashboard.html" class="mnav-item${isDash?' active':''}">
+        <span class="mnav-icon">👤</span><span>Account</span>
+      </a>`;
+  } else {
+    items = `
+      <a href="/" class="mnav-item${isHome?' active':''}">
+        <span class="mnav-icon">🏠</span><span>Home</span>
+      </a>
+      <a href="/pages/browse.html" class="mnav-item primary${isBrowse?' active':''}">
+        <span class="mnav-icon">🛒</span><span>Browse</span>
+      </a>
+      <a href="/pages/prices.html" class="mnav-item${isPrices?' active':''}">
+        <span class="mnav-icon">📊</span><span>Prices</span>
+      </a>
+      <a href="/pages/login.html" class="mnav-item${path.includes('login')?' active':''}">
+        <span class="mnav-icon">👤</span><span>Sign In</span>
+      </a>`;
+  }
+
+  const nav = document.createElement('div');
+  nav.className = 'mobile-nav';
+  nav.innerHTML = `<div class="mobile-nav-inner">${items}</div>`;
+  document.body.appendChild(nav);
+}
