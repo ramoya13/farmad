@@ -35,9 +35,9 @@
 .btn-load-more:hover { border-color:var(--leaf); color:var(--leaf); }
 
 /* Listing detail modal */
-.ld-overlay { display:none; position:fixed; inset:0; background:rgba(45,27,14,0.6); backdrop-filter:blur(6px); z-index:600; align-items:center; justify-content:center; padding:1rem; }
+.ld-overlay { display:none; position:fixed; inset:0; background:rgba(45,27,14,0.6); backdrop-filter:blur(6px); z-index:600; align-items:flex-start; justify-content:center; padding:1.25rem; overflow-y:auto; }
 .ld-overlay.open { display:flex; }
-.ld-box { background:white; border-radius:28px; max-width:620px; width:100%; max-height:90vh; overflow-y:auto; position:relative; animation:modalIn 0.3s ease; }
+.ld-box { background:white; border-radius:28px; max-width:620px; width:100%; position:relative; animation:modalIn 0.3s ease; margin:auto; }
 .ld-hero { height:190px; background:linear-gradient(135deg,var(--sky),var(--mist)); display:flex; align-items:center; justify-content:center; font-size:7rem; border-radius:28px 28px 0 0; }
 .ld-body { padding:1.75rem; }
 .ld-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:var(--earth); margin-bottom:0.4rem; }
