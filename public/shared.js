@@ -71,11 +71,7 @@ function updateNav() {
   if (!nav) return;
   if (user) {
     const init = user.name.charAt(0).toUpperCase();
-    const isFarmer = user.role === 'farmer';
     nav.innerHTML = `
-      <li><a href="/pages/browse.html">Browse</a></li>
-      <li><a href="/pages/prices.html">Prices</a></li>
-      ${isFarmer ? `<li><a href="/pages/my-listings.html" class="nav-cta">+ My Listings</a></li>` : ''}
       <li class="nav-user">
         <a href="/pages/dashboard.html" style="display:flex;align-items:center;gap:0.6rem;text-decoration:none">
           <div class="nav-avatar" title="${user.name}">${init}</div>
