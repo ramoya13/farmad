@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Listings — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.listing-row { background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08); padding:1.1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:1rem; transition:box-shadow 0.2s; }
+.listing-row:hover { box-shadow:0 4px 20px rgba(45,27,14,0.08); }
+.listing-emoji { width:48px; height:48px; background:var(--sky); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+.listing-info { flex:1; min-width:0; }
+.listing-row-title { font-weight:700; color:var(--earth); font-size:0.92rem; }
+.listing-row-meta { font-size:0.75rem; color:var(--subtext); margin-top:0.15rem; display:flex; gap:0.5rem; flex-wrap:wrap; }
+.listing-row-price { font-weight:700; color:var(--leaf); font-size:0.95rem; white-space:nowrap; }
+.listing-row-actions { display:flex; gap:0.5rem; flex-shrink:0; }
+.action-btn-sm { padding:0.35rem 0.75rem; border-radius:7px; border:1px solid; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.15s; background:transparent; }
+.btn-edit    { border-color:rgba(92,51,23,0.2); color:var(--subtext); }
+.btn-edit:hover { background:var(--mist); }
+.btn-pause   { border-color:rgba(232,160,32,0.4); color:#854d0e; }
+.btn-pause:hover { background:#fef9c3; }
+.btn-activate{ border-color:rgba(58,125,44,0.3); color:var(--leaf); }
+.btn-activate:hover { background:var(--sky); }
+.btn-delete  { border-color:rgba(220,38,38,0.2); color:#dc2626; }
+.btn-delete:hover { background:#fef2f2; }
+
+.top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+.listings-tabs { display:flex; gap:0.5rem; }
+.ltab { padding:0.45rem 1.1rem; border-radius:100px; border:1.5px solid rgba(92,51,23,0.18); font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; background:white; color:var(--subtext); transition:all 0.2s; }
+.ltab.active { background:var(--leaf); border-color:var(--leaf); color:white; }
+
+/* Create/Edit modal */
+.cl-modal .modal { max-width:540px; }
+@media(max-width:640px) {
+  .section { padding:1.5rem 4vw; }
+  .top-bar { flex-direction:column; align-items:stretch; gap:0.75rem; }
+  .listings-tabs { flex-wrap:wrap; gap:0.4rem; }
+  .ltab { padding:0.38rem 0.85rem; font-size:0.76rem; }
+  .listing-row { flex-wrap:wrap; gap:0.75rem; padding:0.9rem 1rem; }
+  .listing-row-actions { width:100%; justify-content:flex-end; }
+  .action-btn-sm { padding:0.3rem 0.65rem; font-size:0.72rem; }
+  .listing-emoji { width:40px; height:40px; font-size:1.3rem; }
+}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="eyebrow">My Farm</div>
+    <h1>My <em>Listings</em></h1>
+    <p>Manage your produce listings</p>
+  </div>
+
+  <div class="section">
+    <div class="top-bar">
+      <div class="listings-tabs">
+        <button class="ltab active" data-s="active"  onclick="setTab('active',this)">Active</button>
+        <button class="ltab" data-s="draft"  onclick="setTab('draft',this)">Drafts</button>
+        <button class="ltab" data-s="sold"   onclick="setTab('sold',this)">Sold</button>
+        <button class="ltab" data-s=""       onclick="setTab('',this)">All</button>
+      </div>
+      <button class="btn btn-primary" onclick="openCreate()">+ Post New Listing</button>
+    </div>
+
+    <div id="listingsContainer"></div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-overlay cl-modal" id="clModal">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--earth);margin-bottom:0.25rem" id="clModalTitle">Post New Listing</h3>
+    <p style="font-size:0.83rem;color:var(--subtext);margin-bottom:1.5rem">Fill in your produce details below</p>
+    <div class="alert alert-error"   id="clError"></div>
+    <div class="alert alert-success" id="clSuccess"></div>
+    <form id="clForm" onsubmit="submitListing(event)">
+      <div class="form-group"><label>Produce Name *</label><input type="text" id="clTitle" placeholder="e.g. Fresh Sukuma Wiki, Hass Avocados" required></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="clCategory" required>
+            <option value="">Select…</option>
+            <option value="vegetables">🥬 Vegetables</option>
+            <option value="fruits">🍎 Fruits</option>
+            <option value="grains">🌾 Grains</option>
+            <option value="dairy">🥛 Dairy & Eggs</option>
+            <option value="legumes">🫘 Legumes</option>
+            <option value="livestock">🐄 Livestock</option>
+            <option value="other">🌿 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Unit *</label>
+          <select id="clUnit" required>
+            <option value="kg">kg</option>
+            <option value="bags">bags</option>
+            <option value="crates">crates</option>
+            <option value="litres">litres</option>
+            <option value="pieces">pieces</option>
+            <option value="tonnes">tonnes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price per unit (KSh) *</label><input type="number" id="clPrice" placeholder="45" min="1" required></div>
+        <div class="form-group"><label>Available quantity *</label><input type="number" id="clQty" placeholder="200" min="1" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Min. order qty</label><input type="number" id="clMinQty" placeholder="1" min="1" value="1"></div>
+        <div class="form-group"><label>Harvest date</label><input type="date" id="clHarvest"></div>
+      </div>
+      <div class="form-group"><label>Location / Village</label><input type="text" id="clLocation" placeholder="e.g. Limuru, Kiambu"></div>
+      <div class="form-group"><label>Description</label><textarea id="clDesc" rows="2" placeholder="Grade, freshness, growing method…"></textarea></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="clStatus">
+          <option value="active">Active — visible to buyers</option>
+          <option value="draft">Draft — hidden</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0">
+        <input type="checkbox" id="clOrganic" style="width:auto;accent-color:var(--leaf)">
+        <label for="clOrganic" style="margin:0;font-size:0.87rem;cursor:pointer">Organic / pesticide-free</label>
+      </div>
+      <button type="submit" class="submit-btn" id="clBtn">Post Listing</button>
+    </form>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const user = requireAuth('farmer');
+if (!user) throw new Error('redirect');
+
+let activeTab = 'active';
+let editingId = null;
+
+async function loadListings() {
+  const container = document.getElementById('listingsContainer');
+  container.innerHTML = Array(4).fill(`<div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:0.75rem"></div>`).join('');
+  const { ok, data } = await apiFetch(`/listings/farmer/${user.id}`);
+  if (!ok) { container.innerHTML=`<div class="empty-state"><div class="icon">🌾</div><h3>Could not load listings</h3></div>`; return; }
+  let listings = data.data.listings || [];
+  if (activeTab) listings = listings.filter(l=>l.status===activeTab);
+  if (!listings.length) { container.innerHTML=`<div class="empty-state"><div class="icon">🌿</div><h3>No ${activeTab||''} listings</h3><p>Click "Post New Listing" to add your first one.</p></div>`; return; }
+  container.innerHTML = listings.map(l=>buildRow(l)).join('');
+}
+
+function buildRow(l) {
+  const isActive = l.status==='active' && l.is_available;
+  return `<div class="listing-row">
+    <div class="listing-emoji">${CAT_EMOJI[l.category]||'🌿'}</div>
+    <div class="listing-info">
+      <div class="listing-row-title">${l.title}</div>
+      <div class="listing-row-meta">
+        <span>${statusBadge(l.status)}</span>
+        <span>📍 ${l.county}</span>
+        <span>·</span><span>Qty: ${l.quantity} ${l.unit}</span>
+        <span>·</span><span>👁 ${l.views||0} views</span>
+      </div>
+    </div>
+    <div class="listing-row-price">KSh ${fmtPrice(l.price_per_unit)}/${l.unit}</div>
+    <div class="listing-row-actions">
+      <button class="action-btn-sm btn-edit" onclick="openEdit('${l.id}')">Edit</button>
+      ${isActive
+        ? `<button class="action-btn-sm btn-pause" onclick="setStatus('${l.id}','draft')">Pause</button>`
+        : `<button class="action-btn-sm btn-activate" onclick="setStatus('${l.id}','active')">Activate</button>`}
+      <button class="action-btn-sm btn-delete" onclick="deleteListing('${l.id}','${l.title.replace(/'/g,"\\'")}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+function setTab(status, btn) {
+  activeTab = status;
+  document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadListings();
+}
+
+async function setStatus(id, status) {
+  const { ok, data } = await apiFetch(`/listings/${id}/status`, { method:'PATCH', body: JSON.stringify({ status }) });
+  if (ok) { toast(`Listing ${status==='active'?'activated':'paused'}`, 'success'); loadListings(); }
+  else toast(data.message||'Failed','error');
+}
+
+async function deleteListing(id, title) {
+  if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+  const { ok, data } = await apiFetch(`/listings/${id}`, { method:'DELETE' });
+  if (ok) { toast('Listing deleted','default'); loadListings(); }
+  else toast(data.message||'Failed','error');
+}
+
+// Create / Edit modal
+function openCreate() {
+  editingId = null;
+  document.getElementById('clModalTitle').textContent = 'Post New Listing';
+  document.getElementById('clBtn').textContent = 'Post Listing';
+  document.getElementById('clForm').reset();
+  document.getElementById('clHarvest').value = new Date().toISOString().split('T')[0];
+  document.getElementById('clLocation').value = user.county || '';
+  document.getElementById('clError').style.display='none';
+  document.getElementById('clSuccess').style.display='none';
+  document.getElementById('clModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+async function openEdit(id) {
+  editingId = id;
+  document.getElementById('clModalTitle').textContent = 'Edit Listing';
+  document.getElementById('clBtn').textContent = 'Save Changes';
+  document.getElementById('clError').style.display='none';
+  document.getElementById('clSuccess').style.display='none';
+  const { ok, data } = await apiFetch(`/listings/${id}`);
+  if (!ok) { toast('Could not load listing','error'); return; }
+  const l = data.data.listing;
+  document.getElementById('clTitle').value    = l.title;
+  document.getElementById('clCategory').value = l.category;
+  document.getElementById('clUnit').value     = l.unit;
+  document.getElementById('clPrice').value    = l.price_per_unit;
+  document.getElementById('clQty').value      = l.quantity;
+  document.getElementById('clMinQty').value   = l.min_order_qty;
+  document.getElementById('clHarvest').value  = l.harvest_date||'';
+  document.getElementById('clLocation').value = l.location||'';
+  document.getElementById('clDesc').value     = l.description||'';
+  document.getElementById('clStatus').value   = l.status;
+  document.getElementById('clOrganic').checked = l.is_organic;
+  document.getElementById('clModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal() { document.getElementById('clModal').classList.remove('open'); document.body.style.overflow=''; }
+document.getElementById('clModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+async function submitListing(e) {
+  e.preventDefault();
+  const btn = document.getElementById('clBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  const body = {
+    title:          document.getElementById('clTitle').value.trim(),
+    category:       document.getElementById('clCategory').value,
+    unit:           document.getElementById('clUnit').value,
+    price_per_unit: parseFloat(document.getElementById('clPrice').value),
+    quantity:       parseFloat(document.getElementById('clQty').value),
+    min_order_qty:  parseFloat(document.getElementById('clMinQty').value)||1,
+    county:         user.county||'',
+    location:       document.getElementById('clLocation').value.trim()||user.county||'',
+    description:    document.getElementById('clDesc').value.trim(),
+    status:         document.getElementById('clStatus').value,
+    is_organic:     document.getElementById('clOrganic').checked,
+    harvest_date:   document.getElementById('clHarvest').value||null,
+  };
+  const url    = editingId ? `/listings/${editingId}` : '/listings';
+  const method = editingId ? 'PATCH' : 'POST';
+  const { ok, data } = await apiFetch(url, { method, body: JSON.stringify(body) });
+  const errEl = document.getElementById('clError');
+  const sucEl = document.getElementById('clSuccess');
+  if (!ok) {
+    errEl.textContent = data.errors ? data.errors.join(' • ') : (data.message||'Failed'); errEl.style.display='block';
+  } else {
+    sucEl.textContent = editingId ? 'Listing updated!' : `"${body.title}" posted! 🌱`; sucEl.style.display='block';
+    toast(editingId?'Listing updated':'Listing posted 🌱','success');
+    loadListings();
+    setTimeout(closeModal, 1500);
+  }
+  btn.disabled=false; btn.textContent=editingId?'Save Changes':'Post Listing';
+}
+
+loadListings();
+</script>
+</body>
+</html>

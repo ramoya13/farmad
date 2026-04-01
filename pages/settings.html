@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Settings — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+/* ── Layout ─────────────────────────────────────────────── */
+.settings-wrap { max-width: 640px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+/* ── Profile hero ───────────────────────────────────────── */
+.profile-hero {
+  background: linear-gradient(135deg, var(--earth) 0%, #1c400f 100%);
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,160,32,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ph-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--harvest); color: var(--earth);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15);
+  position: relative; z-index: 1;
+}
+.ph-info { flex: 1; position: relative; z-index: 1; }
+.ph-name  { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 900; color: white; }
+.ph-role  { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 0.15rem; }
+.ph-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px; padding: 0.22rem 0.7rem;
+  font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.7);
+  margin-top: 0.5rem;
+}
+.ph-back {
+  position: relative; z-index: 1;
+  color: rgba(255,255,255,0.4); font-size: 0.78rem;
+  text-decoration: none; transition: color 0.2s;
+  white-space: nowrap;
+}
+.ph-back:hover { color: var(--harvest); }
+
+/* ── Section ─────────────────────────────────────────────── */
+.settings-section { margin-bottom: 1.75rem; }
+.ss-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0 0 0.85rem;
+  border-bottom: 1px solid rgba(92,51,23,0.1);
+  margin-bottom: 1.25rem;
+}
+.ss-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.ss-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 900; color: var(--earth); }
+.ss-desc  { font-size: 0.75rem; color: var(--subtext); margin-top: 0.1rem; font-weight: 300; }
+
+/* ── Form fields ─────────────────────────────────────────── */
+.field { margin-bottom: 1rem; }
+.field label {
+  display: block; font-size: 0.75rem; font-weight: 700;
+  color: var(--earth); margin-bottom: 0.35rem; letter-spacing: 0.2px;
+}
+.field label span { font-weight: 400; color: var(--subtext); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 0.7rem 1rem;
+  border: 1.5px solid rgba(92,51,23,0.15); border-radius: 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  background: white; color: var(--text); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 3px rgba(58,125,44,0.09);
+}
+.field textarea { resize: vertical; min-height: 80px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+
+/* Produce type toggles */
+.produce-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pt-toggle {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.38rem 0.85rem; border-radius: 100px;
+  border: 1.5px solid rgba(92,51,23,0.14);
+  background: white; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem; font-weight: 600; color: var(--subtext);
+  transition: all 0.15s; user-select: none;
+}
+.pt-toggle:hover { border-color: var(--leaf); color: var(--leaf); }
+.pt-toggle.on { background: var(--sky); border-color: var(--leaf); color: var(--leaf); }
+.pt-toggle input { display: none; }
+
+/* Save button */
+.save-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.75rem; background: var(--leaf); color: white;
+  border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 0.88rem; cursor: pointer;
+  transition: all 0.2s; margin-top: 0.25rem;
+}
+.save-btn:hover:not(:disabled) { background: #2d6122; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(58,125,44,0.25); }
+.save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.save-btn.saved { background: var(--success); }
+
+/* Alert inline */
+.inline-alert {
+  padding: 0.65rem 0.9rem; border-radius: 10px;
+  font-size: 0.82rem; margin-bottom: 1rem; display: none;
+}
+.inline-alert.error   { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+.inline-alert.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+
+/* Divider */
+.section-divider { border: none; border-top: 1px solid rgba(92,51,23,0.08); margin: 2rem 0; }
+
+/* Sign out section */
+.signout-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border: 1px solid rgba(92,51,23,0.08);
+  border-radius: 16px; padding: 1.1rem 1.25rem;
+}
+.signout-text { font-size: 0.88rem; color: var(--subtext); font-weight: 300; }
+.signout-btn {
+  padding: 0.55rem 1.3rem; border-radius: 100px;
+  border: 1.5px solid rgba(220,38,38,0.25); background: transparent;
+  color: #dc2626; font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.signout-btn:hover { background: #fef2f2; border-color: #dc2626; }
+
+@media(max-width: 640px) {
+  .settings-wrap { padding: 1.5rem 1.25rem 6rem; }
+  .field-row { grid-template-columns: 1fr; }
+  .profile-hero { flex-wrap: wrap; gap:0.75rem; padding:1.5rem; }
+  .ph-back { width: 100%; margin-top: 0.25rem; }
+  .ph-avatar { width:52px; height:52px; font-size:1.3rem; }
+  .ss-header { padding:0 0 0.7rem; margin-bottom:1rem; }
+  .save-btn { width:100%; justify-content:center; padding:0.75rem; }
+  .signout-row { flex-direction:column; align-items:flex-start; gap:0.75rem; }
+  .signout-btn { width:100%; text-align:center; }
+}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="settings-wrap">
+
+    <!-- Profile hero -->
+    <div class="profile-hero" id="profileHero">
+      <div class="ph-avatar" id="heroAvatar">?</div>
+      <div class="ph-info">
+        <div class="ph-name" id="heroName">Loading…</div>
+        <div class="ph-role" id="heroRole"></div>
+        <div class="ph-badge" id="heroBadge"></div>
+      </div>
+      <a href="/pages/dashboard.html" class="ph-back">← Dashboard</a>
+    </div>
+
+    <!-- Profile section -->
+    <div class="settings-section">
+      <div class="ss-header">
+        <div class="ss-icon" style="background:#E8F4E8">👤</div>
+        <div>
+          <div class="ss-title">Profile</div>
+          <div class="ss-desc">Your public name, county and bio</div>
+        </div>
+      </div>
+      <div class="inline-alert error"   id="profileError"></div>
+      <div class="inline-alert success" id="profileSuccess"></div>
+      <div class="field"><label>Full Name</label><input type="text" id="pName" placeholder="Grace Wanjiku"></div>
+      <div class="field">
+        <label>County</label>
+        <select id="pCounty"><option value="">Select county…</option></select>
+      </div>
+      <div class="field"><label>Bio <span>(optional — shown on your public profile)</span></label><textarea id="pBio" placeholder="Tell buyers about yourself and your produce…"></textarea></div>
+      <button class="save-btn" id="profileBtn" onclick="saveProfile()">Save Profile</button>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Farm details (farmers only) -->
+    <div class="settings-section" id="farmSection" style="display:none">
+      <div class="ss-header">
+        <div class="ss-icon" style="background:#FFF8E6">🌾</div>
+        <div>
+          <div class="ss-title">Farm Details</div>
+          <div class="ss-desc">Shown on your public farmer profile</div>
+        </div>
+      </div>
+      <div class="inline-alert error"   id="farmError"></div>
+      <div class="inline-alert success" id="farmSuccess"></div>
+      <div class="field-row">
+        <div class="field"><label>Farm Name</label><input type="text" id="fName" placeholder="Wanjiku Farm"></div>
+        <div class="field"><label>Farm Location</label><input type="text" id="fLocation" placeholder="Limuru, Kiambu"></div>
+      </div>
+      <div class="field"><label>Farm Size <span>(hectares, optional)</span></label><input type="number" id="fSize" placeholder="e.g. 2.5" step="0.1" min="0"></div>
+      <div class="field">
+        <label>What do you grow?</label>
+        <div class="produce-grid" id="produceGrid"></div>
+      </div>
+      <button class="save-btn" id="farmBtn" onclick="saveFarm()">Save Farm Details</button>
+    </div>
+
+    <div id="farmDivider" style="display:none"><hr class="section-divider"></div>
+
+    <!-- Password section -->
+    <div class="settings-section">
+      <div class="ss-header">
+        <div class="ss-icon" style="background:#EFF6FF">🔒</div>
+        <div>
+          <div class="ss-title">Password</div>
+          <div class="ss-desc">You'll be signed out everywhere after changing it</div>
+        </div>
+      </div>
+      <div class="inline-alert error"   id="pwError"></div>
+      <div class="inline-alert success" id="pwSuccess"></div>
+      <div class="field"><label>Current Password</label><input type="password" id="pwCurrent" placeholder="Your current password"></div>
+      <div class="field-row">
+        <div class="field"><label>New Password</label><input type="password" id="pwNew" placeholder="Min. 8 characters"></div>
+        <div class="field"><label>Confirm New Password</label><input type="password" id="pwConfirm" placeholder="Repeat new password"></div>
+      </div>
+      <button class="save-btn" id="pwBtn" onclick="changePassword()">Update Password</button>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Sign out -->
+    <div class="signout-row">
+      <span class="signout-text">Sign out of your FarmAd account on this device.</span>
+      <button class="signout-btn" onclick="handleLogout()">Sign Out</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const user = requireAuth();
+if (!user) throw new Error('redirect');
+
+const PRODUCE_TYPES = ['vegetables','fruits','grains','dairy','legumes','livestock','other'];
+
+// County select
+document.getElementById('pCounty').innerHTML =
+  '<option value="">Select county…</option>' +
+  COUNTIES.map(c => `<option>${c}</option>`).join('');
+
+// Produce toggles
+document.getElementById('produceGrid').innerHTML = PRODUCE_TYPES.map(t =>
+  `<label class="pt-toggle" id="pt-${t}">
+    <input type="checkbox" value="${t}" class="ptCheck">
+    ${CAT_EMOJI[t]||''} ${t}
+  </label>`
+).join('');
+
+document.querySelectorAll('.pt-toggle').forEach(lbl => {
+  lbl.addEventListener('click', () => {
+    const cb = lbl.querySelector('input');
+    cb.checked = !cb.checked;
+    lbl.classList.toggle('on', cb.checked);
+  });
+});
+
+// Show farm section for farmers
+if (user.role === 'farmer') {
+  document.getElementById('farmSection').style.display = 'block';
+  document.getElementById('farmDivider').style.display = 'block';
+}
+
+// Load user data
+async function loadUser() {
+  const { ok, data } = await apiFetch('/auth/me');
+  if (!ok) return;
+  const u = data.data.user;
+
+  // Hero
+  document.getElementById('heroAvatar').textContent = u.name.charAt(0).toUpperCase();
+  document.getElementById('heroName').textContent   = u.name;
+  document.getElementById('heroRole').textContent   = (u.role === 'farmer' ? '🌾 Farmer' : '🛒 Buyer') + (u.county ? ' · ' + u.county : '');
+  document.getElementById('heroBadge').textContent  = u.is_verified ? '✓ Verified' : 'Active Member';
+
+  // Profile fields
+  document.getElementById('pName').value   = u.name   || '';
+  document.getElementById('pCounty').value = u.county || '';
+  document.getElementById('pBio').value    = u.bio    || '';
+
+  // Farm fields
+  if (u.role === 'farmer' && u.profile) {
+    document.getElementById('fName').value     = u.profile.farm_name     || '';
+    document.getElementById('fLocation').value = u.profile.farm_location || '';
+    document.getElementById('fSize').value     = u.profile.farm_size_ha  || '';
+    const types = (u.profile.produce_types || '').split(',').map(s => s.trim()).filter(Boolean);
+    types.forEach(t => {
+      const lbl = document.getElementById(`pt-${t}`);
+      if (lbl) { lbl.querySelector('input').checked = true; lbl.classList.add('on'); }
+    });
+  }
+}
+
+// Helpers
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = `inline-alert ${type}`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+function setBtnSaved(id, label) {
+  const btn = document.getElementById(id);
+  btn.classList.add('saved');
+  btn.textContent = '✓ Saved';
+  setTimeout(() => { btn.classList.remove('saved'); btn.textContent = label; btn.disabled = false; }, 2000);
+}
+
+// Save profile
+async function saveProfile() {
+  const btn = document.getElementById('profileBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const body = {
+    name:   document.getElementById('pName').value.trim(),
+    county: document.getElementById('pCounty').value,
+    bio:    document.getElementById('pBio').value.trim()
+  };
+  const { ok, data } = await apiFetch('/auth/me', { method: 'PATCH', body: JSON.stringify(body) });
+  if (ok) {
+    setBtnSaved('profileBtn', 'Save Profile');
+    const stored = getUser();
+    if (stored) { Object.assign(stored, body); localStorage.setItem('farmad_user', JSON.stringify(stored)); updateNav(); }
+    document.getElementById('heroName').textContent = body.name;
+    document.getElementById('heroAvatar').textContent = body.name.charAt(0).toUpperCase();
+    document.getElementById('heroRole').textContent = (user.role==='farmer'?'🌾 Farmer':'🛒 Buyer') + (body.county?' · '+body.county:'');
+  } else {
+    showAlert('profileError', 'error', data.message || 'Could not save profile.');
+    btn.disabled = false; btn.textContent = 'Save Profile';
+  }
+}
+
+// Save farm
+async function saveFarm() {
+  const btn = document.getElementById('farmBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const types = [...document.querySelectorAll('.ptCheck:checked')].map(c => c.value).join(',');
+  const body = {
+    farm_name:     document.getElementById('fName').value.trim(),
+    farm_location: document.getElementById('fLocation').value.trim(),
+    farm_size_ha:  parseFloat(document.getElementById('fSize').value) || null,
+    produce_types: types
+  };
+  const { ok, data } = await apiFetch('/auth/me', { method: 'PATCH', body: JSON.stringify(body) });
+  if (ok) { setBtnSaved('farmBtn', 'Save Farm Details'); }
+  else { showAlert('farmError', 'error', data.message || 'Could not save farm details.'); btn.disabled = false; btn.textContent = 'Save Farm Details'; }
+}
+
+// Change password
+async function changePassword() {
+  const btn = document.getElementById('pwBtn');
+  const np  = document.getElementById('pwNew').value;
+  const cp  = document.getElementById('pwConfirm').value;
+  if (np !== cp)    { showAlert('pwError','error','New passwords do not match.'); return; }
+  if (np.length<8)  { showAlert('pwError','error','Password must be at least 8 characters.'); return; }
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const { ok, data } = await apiFetch('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ current_password: document.getElementById('pwCurrent').value, new_password: np })
+  });
+  if (ok) {
+    showAlert('pwSuccess','success','Password updated. Signing you out…');
+    setTimeout(() => { clearAuth(); window.location.href = '/pages/login.html'; }, 2000);
+  } else {
+    showAlert('pwError','error', data.message || 'Could not update password.');
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+}
+
+loadUser();
+</script>
+</body>
+</html>

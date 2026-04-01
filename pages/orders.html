@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Orders — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.orders-layout { display:grid; grid-template-columns:280px 1fr; gap:2rem; padding:2.5rem 6vw; align-items:start; }
+.orders-sidebar { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.5rem; position:sticky; top:88px; }
+.orders-sidebar h3 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--earth); margin-bottom:1.25rem; }
+.status-filter { display:flex; flex-direction:column; gap:0.4rem; }
+.sf-item { padding:0.5rem 0.85rem; border-radius:10px; border:none; background:transparent; text-align:left; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:500; color:var(--subtext); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:space-between; }
+.sf-item:hover { background:var(--mist); }
+.sf-item.active { background:var(--sky); color:var(--leaf); font-weight:700; }
+.sf-count { background:var(--mist); border-radius:100px; padding:0.1rem 0.5rem; font-size:0.7rem; }
+.sf-item.active .sf-count { background:rgba(58,125,44,0.15); color:var(--leaf); }
+
+.order-card { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); margin-bottom:1rem; overflow:hidden; transition:box-shadow 0.2s; }
+.order-card:hover { box-shadow:0 4px 24px rgba(45,27,14,0.08); }
+.order-card-header { padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1rem; cursor:pointer; }
+.order-card-header:hover .order-toggle { color:var(--leaf); }
+.order-number { font-family:monospace; font-size:0.75rem; color:var(--subtext); }
+.order-title { font-weight:700; color:var(--earth); font-size:0.92rem; }
+.order-meta-row { font-size:0.78rem; color:var(--subtext); margin-top:0.15rem; display:flex; gap:0.75rem; flex-wrap:wrap; }
+.order-amount-big { font-weight:700; color:var(--earth); font-size:1.05rem; }
+.order-toggle { font-size:0.85rem; color:var(--subtext); transition:color 0.2s; margin-left:auto; flex-shrink:0; }
+
+.order-card-body { display:none; padding:0 1.5rem 1.5rem; border-top:1px solid var(--mist); }
+.order-card-body.open { display:block; }
+.items-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin:1rem 0; }
+.items-table th { text-align:left; font-size:0.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--subtext); padding-bottom:0.5rem; border-bottom:1px solid var(--mist); }
+.items-table td { padding:0.6rem 0; border-bottom:1px solid rgba(92,51,23,0.06); color:var(--earth); }
+.order-actions-row { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1rem; }
+.action-btn { padding:0.5rem 1.1rem; border-radius:8px; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.action-confirm { background:var(--leaf); color:white; }
+.action-ready   { background:#dbeafe; color:#1e40af; }
+.action-transit { background:#e0e7ff; color:#3730a3; }
+.action-deliver { background:#dcfce7; color:#166534; }
+.action-cancel  { background:#fee2e2; color:#991b1b; }
+.payment-row { background:var(--mist); border-radius:12px; padding:0.85rem 1rem; font-size:0.82rem; display:flex; justify-content:space-between; align-items:center; }
+
+@media(max-width:800px) { .orders-layout { grid-template-columns:1fr; } .orders-sidebar { position:static; } }
+@media(max-width:640px) {
+  .orders-layout { padding:1.25rem 4vw; gap:1rem; }
+  .orders-sidebar { border-radius:16px; padding:1rem; }
+  .status-filter { flex-direction:row; flex-wrap:wrap; gap:0.4rem; }
+  .sf-item { padding:0.35rem 0.75rem; font-size:0.75rem; border-radius:100px; border:1.5px solid rgba(92,51,23,0.15); width:auto; background:white; }
+  .sf-item.active { background:var(--leaf); color:white; border-color:var(--leaf); }
+  .order-card-header { padding:1rem; flex-wrap:wrap; gap:0.5rem; }
+  .order-card-body { padding:0 1rem 1rem; }
+  .items-table { font-size:0.75rem; }
+  .order-actions-row { gap:0.4rem; }
+  .action-btn { padding:0.4rem 0.75rem; font-size:0.75rem; }
+}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="eyebrow">My Account</div>
+    <h1>My <em>Orders</em></h1>
+    <p id="pageDesc"></p>
+  </div>
+
+  <div class="orders-layout">
+    <aside class="orders-sidebar">
+      <h3>Filter by Status</h3>
+      <div class="status-filter" id="statusFilter">
+        <button class="sf-item active" data-status="" onclick="setStatus('',this)">All Orders <span class="sf-count" id="cnt-all">—</span></button>
+        <button class="sf-item" data-status="pending"    onclick="setStatus('pending',this)">⏳ Pending</button>
+        <button class="sf-item" data-status="confirmed"  onclick="setStatus('confirmed',this)">✅ Confirmed</button>
+        <button class="sf-item" data-status="ready"      onclick="setStatus('ready',this)">📦 Ready</button>
+        <button class="sf-item" data-status="in_transit" onclick="setStatus('in_transit',this)">🚚 In Transit</button>
+        <button class="sf-item" data-status="delivered"  onclick="setStatus('delivered',this)">🎉 Delivered</button>
+        <button class="sf-item" data-status="cancelled"  onclick="setStatus('cancelled',this)">❌ Cancelled</button>
+      </div>
+    </aside>
+
+    <main>
+      <div id="ordersContainer">
+        ${Array(4).fill(`<div class="skeleton" style="height:80px;border-radius:16px;margin-bottom:1rem"></div>`).join('')}
+      </div>
+      <div id="loadMoreWrap" style="display:none;text-align:center;margin-top:1.5rem">
+        <button class="btn btn-outline" onclick="loadMore()">Load More</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+const user = requireAuth();
+if (!user) throw new Error('redirect');
+const isFarmer = user.role === 'farmer';
+document.getElementById('pageDesc').textContent = isFarmer ? 'Manage orders from your buyers' : 'Track your purchases';
+
+let page=1, hasMore=false, activeStatus='';
+// If ?id= param, expand that order
+const focusId = new URLSearchParams(window.location.search).get('id');
+
+async function loadOrders(reset=true) {
+  if (reset) page=1;
+  const container = document.getElementById('ordersContainer');
+  if (reset) container.innerHTML = Array(3).fill(`<div class="skeleton" style="height:80px;border-radius:16px;margin-bottom:1rem"></div>`).join('');
+
+  const p = new URLSearchParams({ limit:20, page });
+  if (activeStatus) p.set('status',activeStatus);
+  const { ok, data } = await apiFetch(`/orders?${p}`);
+  if (!ok || !data.data?.orders) { container.innerHTML=`<div class="empty-state"><div class="icon">📦</div><h3>No orders found</h3></div>`; return; }
+
+  const orders = data.data.orders;
+  const total  = data.data.pagination.total;
+  document.getElementById('cnt-all').textContent = total;
+
+  const html = orders.map(o=>buildOrderCard(o)).join('');
+  if (reset) container.innerHTML=html; else container.insertAdjacentHTML('beforeend',html);
+  hasMore = page * 20 < total;
+  document.getElementById('loadMoreWrap').style.display = hasMore ? 'block' : 'none';
+
+  // Expand focused order
+  if (focusId) { const el=document.getElementById(`ob-${focusId}`); if(el){el.classList.add('open'); el.scrollIntoView({behavior:'smooth',block:'center'});} }
+}
+
+function buildOrderCard(o) {
+  const party = isFarmer ? `Buyer: ${o.buyer_name}` : `Farmer: ${o.farm_name||o.farmer_name}`;
+  return `<div class="order-card" id="oc-${o.id}">
+    <div class="order-card-header" onclick="toggleOrder('${o.id}')">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.2rem">
+          <div class="order-number">#${o.id.slice(0,8).toUpperCase()}</div>
+          ${statusBadge(o.status)}
+        </div>
+        <div class="order-meta-row"><span>${party}</span><span>·</span><span>${fmtDate(o.created_at)}</span><span>·</span><span>${o.item_count||'?'} item(s)</span></div>
+      </div>
+      <div class="order-amount-big">KSh ${fmtPrice(o.total_amount)}</div>
+      <div class="order-toggle" id="ot-${o.id}">▼</div>
+    </div>
+    <div class="order-card-body" id="ob-${o.id}">
+      <div style="padding-top:1rem" id="od-${o.id}">
+        <div class="skeleton" style="height:60px;border-radius:10px"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function toggleOrder(id) {
+  const body = document.getElementById(`ob-${id}`);
+  const toggle = document.getElementById(`ot-${id}`);
+  if (body.classList.toggle('open')) {
+    toggle.textContent = '▲';
+    await loadOrderDetail(id);
+  } else {
+    toggle.textContent = '▼';
+  }
+}
+
+async function loadOrderDetail(id) {
+  const el = document.getElementById(`od-${id}`);
+  const { ok, data } = await apiFetch(`/orders/${id}`);
+  if (!ok) { el.innerHTML='<p>Failed to load details.</p>'; return; }
+  const o = data.data.order;
+  const items = o.items || [];
+  const payments = data.data.payments || [];
+
+  el.innerHTML = `
+    <table class="items-table">
+      <thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+      <tbody>${items.map(i=>`<tr><td>${i.title}</td><td>${i.quantity} ${i.unit}</td><td>KSh ${fmtPrice(i.price_per_unit)}</td><td>KSh ${fmtPrice(i.line_total)}</td></tr>`).join('')}</tbody>
+    </table>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.82rem;color:var(--subtext);margin-bottom:1rem">
+      <span>Subtotal: KSh ${fmtPrice(o.subtotal)}</span>
+      <span>Delivery: KSh ${fmtPrice(o.delivery_fee)}</span>
+      <strong style="color:var(--earth)">Total: KSh ${fmtPrice(o.total_amount)}</strong>
+    </div>
+    ${o.delivery_address ? `<p style="font-size:0.82rem;color:var(--subtext);margin-bottom:1rem">📍 Delivery to: ${o.delivery_address}, ${o.delivery_county}</p>` : ''}
+    ${payments.length ? `<div class="payment-row"><span>Payment: <strong>${payments[0].method.toUpperCase()}</strong></span>${statusBadge(payments[0].status)}${payments[0].mpesa_receipt?`<span>Receipt: <strong>${payments[0].mpesa_receipt}</strong></span>`:''}</div>` : `<div class="payment-row"><span style="color:var(--subtext)">No payment recorded yet</span></div>`}
+    <div class="order-actions-row">${buildDetailActions(o)}</div>`;
+}
+
+function buildDetailActions(o) {
+  const btns = [];
+  if (isFarmer) {
+    if (o.status==='pending')   btns.push(`<button class="action-btn action-confirm" onclick="doAction('${o.id}','confirm')">✓ Confirm Order</button>`);
+    if (o.status==='confirmed') btns.push(`<button class="action-btn action-ready"   onclick="doAction('${o.id}','ready')">📦 Mark Ready</button>`);
+    if (o.status==='ready')     btns.push(`<button class="action-btn action-transit"  onclick="doAction('${o.id}','in-transit')">🚚 Dispatch</button>`);
+  } else {
+    if (['ready','in_transit'].includes(o.status)) btns.push(`<button class="action-btn action-deliver" onclick="doAction('${o.id}','delivered')">✓ Confirm Receipt</button>`);
+  }
+  if (!['delivered','cancelled'].includes(o.status)) btns.push(`<button class="action-btn action-cancel" onclick="doAction('${o.id}','cancel')">Cancel Order</button>`);
+  return btns.join('');
+}
+
+async function doAction(id, action) {
+  const { ok, data } = await apiFetch(`/orders/${id}/${action}`, { method:'PATCH' });
+  if (ok) { toast('Order updated ✅','success'); loadOrders(); }
+  else toast(data.message||'Failed','error');
+}
+
+function setStatus(status, btn) {
+  activeStatus = status;
+  document.querySelectorAll('.sf-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadOrders();
+}
+
+function loadMore() { if(!hasMore) return; page++; loadOrders(false); }
+
+loadOrders();
+</script>
+</body>
+</html>

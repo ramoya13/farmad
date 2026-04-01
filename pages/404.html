@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Page Not Found — FarmAd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.notfound-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; text-align:center; }
+.notfound-box { max-width:480px; }
+.notfound-emoji { font-size:5rem; margin-bottom:1.5rem; display:block; }
+.notfound-num { font-family:'Playfair Display',serif; font-size:6rem; font-weight:900; color:var(--mist); line-height:1; }
+.notfound-title { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; color:var(--earth); margin-bottom:0.75rem; }
+.notfound-desc { font-size:0.95rem; color:var(--subtext); line-height:1.7; font-weight:300; margin-bottom:2rem; }
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="logo">Farm<span>Ad</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+
+<div class="notfound-wrap" style="padding-top:72px">
+  <div class="notfound-box">
+    <span class="notfound-emoji">🌾</span>
+    <div class="notfound-num">404</div>
+    <h1 class="notfound-title">This field is empty</h1>
+    <p class="notfound-desc">The page you're looking for doesn't exist, or it may have been moved. Let's get you back to where the produce is.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="/" class="btn btn-primary">← Back to Home</a>
+      <a href="/pages/browse.html" class="btn btn-outline">Browse Listings</a>
+    </div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+</body>
+</html>
