@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => { updateNav(); initReveal();
 function injectMobileNav() {
   const user = getUser();
   const path = window.location.pathname;
+  if (path.includes('login')) return;
   const isDash    = path.includes('dashboard');
   const isBrowse  = path.includes('browse');
   const isPrices  = path.includes('prices');
