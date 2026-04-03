@@ -3,485 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Dashboard — FarmAd</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/shared.css">
+<title>FarmAd — Farmer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-/* ── Layout ─────────────────────────────────────────────────────────────────── */
-.dash-wrap { display:grid; grid-template-columns:1fr 340px; gap:2rem; padding:2.5rem 6vw 4rem; align-items:start; min-height:200px; }
-@media(max-width:960px) { .dash-wrap { grid-template-columns:1fr; } }
-@media(max-width:640px) {
-  .page-wrap { padding-bottom: 72px !important; }
-    .dash-hero { padding:1.75rem 5vw 0; }
-  .hero-inner { flex-direction:column; align-items:flex-start; gap:0; padding-bottom:1.5rem; }
-  .hero-name { font-size:1.8rem; }
-  .hero-left { padding-bottom:0; }
-  .hero-edit-link { padding-bottom:0; margin-top:0.75rem; align-self:auto; font-size:0.75rem; }
-  .dash-wrap { padding:1.5rem 5vw 3rem; }
-  .quick-row { gap:0.5rem; }
-  .qbtn { padding:0.55rem 0.9rem; font-size:0.8rem; }
-  .order-card { grid-template-columns:1fr; gap:0.4rem; }
-  .oc-right { flex-direction:row; justify-content:flex-start; }
-  .sidebar-card { padding:1.1rem; }
-  .fp-stats { gap:0.5rem; }
-  .sec-title { font-size:1.05rem; }
-}
+  /* Base Styles from dashboardideal.html */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --earth:    #1c2e0e;
+    --leaf:     #3a7d2c;
+    --leaf-dim: #2d6122;
+    --harvest:  #e8a020;
+    --red:      #c0392b;
+    --cream:    #f2ede4;
+    --mist:     #ede8df;
+    --white:    #ffffff;
+    --border:   rgba(45,27,14,0.09);
+    --subtext:  #7a6e5a;
+    --sidebar-w: 240px;
+    --topbar-h:  60px;
+    --radius:    14px;
+    --radius-lg: 20px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--earth); display: flex; flex-direction: column; min-height: 100vh; }
 
-/* ── Hero Banner ────────────────────────────────────────────────────────────── */
-.dash-hero {
-  background:linear-gradient(135deg, var(--earth) 0%, #1c400f 100%);
-  padding:2.5rem 6vw 0;
-  position:relative; overflow:hidden;
-}
-.dash-hero::before {
-  content:''; position:absolute; top:-60px; right:-60px;
-  width:320px; height:320px; border-radius:50%;
-  background:radial-gradient(circle, rgba(232,160,32,0.12) 0%, transparent 70%);
-  pointer-events:none;
-}
-.dash-hero::after {
-  content:''; position:absolute; bottom:-40px; left:30%;
-  width:200px; height:200px; border-radius:50%;
-  background:radial-gradient(circle, rgba(58,125,44,0.15) 0%, transparent 70%);
-  pointer-events:none;
-}
-.hero-inner { position:relative; z-index:1; display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; padding-bottom:0; }
-.hero-left { padding-bottom:2.5rem; }
-.hero-greeting { font-size:0.72rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--harvest); margin-bottom:0.5rem; }
-.hero-name { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.6rem); font-weight:900; color:white; line-height:1.1; }
-.hero-sub { font-size:0.88rem; color:rgba(255,255,255,0.5); margin-top:0.4rem; font-weight:300; }
-.hero-avatar-wrap { display:flex; align-items:center; gap:1rem; margin-top:1.25rem; }
-.hero-avatar { width:52px; height:52px; border-radius:50%; background:var(--harvest); color:var(--earth); font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:2px solid rgba(255,255,255,0.15); }
-.hero-badge { display:inline-flex; align-items:center; gap:0.35rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:100px; padding:0.3rem 0.85rem; font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.8); }
-.hero-edit-link { margin-left:auto; font-size:0.78rem; color:rgba(255,255,255,0.4); text-decoration:none; padding-bottom:2.5rem; align-self:flex-end; transition:color 0.2s; }
-.hero-edit-link:hover { color:var(--harvest); }
+  /* Layout and Navigation Styles */
+  .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem 0 calc(var(--sidebar-w) + 1.5rem); z-index: 100; }
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--earth); display: flex; flex-direction: column; z-index: 200; overflow-y: auto; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: white; letter-spacing: -0.5px; }
+  .logo-text span { color: var(--harvest); }
+  .nav-item { display: flex; align-items: center; padding: 0.6rem 0.75rem; border-radius: 10px; cursor: pointer; text-decoration: none; color: rgba(255,255,255,0.48); font-size: 0.85rem; transition: all 0.15s; }
+  .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+  .page-shell { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); }
 
-/* Stats strip sits at the bottom of the hero */
-.stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.07); }
-.stat-cell { padding:1.25rem 1.5rem; border-right:1px solid rgba(255,255,255,0.07); position:relative; }
-.stat-cell:last-child { border-right:none; }
-.stat-cell-num { font-family:'Playfair Display',serif; font-size:1.9rem; font-weight:900; color:white; line-height:1; }
-.stat-cell-num.highlight { color:var(--harvest); }
-.stat-cell-label { font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:0.3rem; font-weight:500; letter-spacing:0.3px; }
-.stat-cell-icon { position:absolute; top:1rem; right:1.25rem; font-size:1.1rem; opacity:0.3; }
-@media(max-width:600px) { .stats-strip { grid-template-columns:1fr 1fr; } .stat-cell { border-bottom:1px solid rgba(255,255,255,0.07); } .stat-cell-num { font-size:1.4rem; } }
+  /* Dashboard Specific UI */
+  .dash-hero { background: linear-gradient(135deg, var(--earth) 0%, #1c400f 100%); padding: 2.5rem 6vw; color: white; position: relative; }
+  .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.1); }
+  .stat-cell { padding: 1.5rem; border-right: 1px solid rgba(255,255,255,0.1); }
+  .dash-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; padding: 2rem 6vw; }
+  .order-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1rem; }
+  .qbtn { padding: 0.6rem 1.2rem; border-radius: 100px; text-decoration: none; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.2s; }
+  .qbtn-primary { background: var(--leaf); color: white; }
+  .qbtn-soft { background: white; color: var(--earth); border: 1px solid var(--border); }
 
-/* ── Quick Actions ──────────────────────────────────────────────────────────── */
-.quick-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem; }
-.qbtn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.25rem; border-radius:100px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; text-decoration:none; transition:all 0.2s; border:none; }
-.qbtn-primary { background:var(--leaf); color:white; box-shadow:0 4px 14px rgba(58,125,44,0.25); }
-.qbtn-primary:hover { background:#2d6122; transform:translateY(-1px); box-shadow:0 6px 18px rgba(58,125,44,0.3); }
-.qbtn-soft { background:white; color:var(--earth); border:1.5px solid rgba(45,27,14,0.14); }
-.qbtn-soft:hover { border-color:var(--leaf); color:var(--leaf); }
-
-/* ── Section header ─────────────────────────────────────────────────────────── */
-.sec-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
-.sec-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:900; color:var(--earth); }
-.sec-link { font-size:0.8rem; color:var(--leaf); font-weight:600; text-decoration:none; }
-.sec-link:hover { text-decoration:underline; }
-
-/* ── Order cards ────────────────────────────────────────────────────────────── */
-.order-card {
-  background:white; border-radius:var(--radius); border:1px solid rgba(92,51,23,0.08);
-  padding:1rem 1.25rem; margin-bottom:0.75rem;
-  display:grid; grid-template-columns:1fr auto;
-  gap:0.75rem; align-items:center;
-  transition:box-shadow 0.2s, transform 0.2s;
-}
-.order-card:hover { box-shadow:0 4px 20px rgba(45,27,14,0.09); transform:translateY(-1px); }
-.order-card-left {}
-.oc-top { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.3rem; }
-.oc-id { font-size:0.68rem; font-family:monospace; color:rgba(107,82,64,0.5); background:var(--mist); padding:0.15rem 0.5rem; border-radius:6px; }
-.oc-amount { font-weight:700; color:var(--earth); font-size:0.95rem; }
-.oc-meta { font-size:0.75rem; color:var(--subtext); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
-.oc-dot { opacity:0.3; }
-.oc-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
-.oa-btn { padding:0.32rem 0.8rem; border-radius:7px; border:none; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-.oa-confirm  { background:var(--leaf); color:white; }
-.oa-confirm:hover  { background:#2d6122; }
-.oa-ready    { background:#dbeafe; color:#1e40af; }
-.oa-ready:hover    { background:#bfdbfe; }
-.oa-transit  { background:#e0e7ff; color:#3730a3; }
-.oa-transit:hover  { background:#c7d2fe; }
-.oa-deliver  { background:#dcfce7; color:#166534; }
-.oa-deliver:hover  { background:#bbf7d0; }
-.oa-cancel   { background:#fee2e2; color:#991b1b; }
-.oa-cancel:hover   { background:#fecaca; }
-.oc-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem; }
-
-/* ── Review cards ───────────────────────────────────────────────────────────── */
-.review-card {
-  background:linear-gradient(135deg, #fffbf0 0%, #fff8e6 100%);
-  border:1px solid rgba(232,160,32,0.2); border-radius:var(--radius);
-  padding:1rem 1.25rem; margin-bottom:0.75rem;
-  display:flex; align-items:center; justify-content:space-between; gap:1rem;
-}
-.rc-name  { font-weight:700; color:var(--earth); font-size:0.88rem; }
-.rc-sub   { font-size:0.73rem; color:var(--subtext); margin-top:0.1rem; }
-.rc-icon  { font-size:1.4rem; flex-shrink:0; }
-
-/* ── Sidebar ────────────────────────────────────────────────────────────────── */
-.sidebar-card { background:white; border-radius:var(--radius-lg); border:1px solid rgba(92,51,23,0.08); padding:1.5rem; margin-bottom:1.25rem; }
-.sidebar-card-title { font-size:0.7rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--subtext); margin-bottom:1.1rem; }
-
-/* Farmer profile sidebar */
-.farm-profile { text-align:center; padding:0.5rem 0 0; }
-.fp-avatar { width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg,var(--leaf),#1c400f); color:white; font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem; }
-.fp-name  { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:900; color:var(--earth); }
-.fp-role  { font-size:0.75rem; color:var(--subtext); margin-top:0.2rem; }
-.fp-stats { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:1.25rem 0 1rem; }
-.fp-stat  { background:var(--mist); border-radius:12px; padding:0.8rem; text-align:center; }
-.fp-stat-num { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:var(--earth); }
-.fp-stat-label { font-size:0.65rem; color:var(--subtext); margin-top:0.15rem; }
-.fp-rating { display:flex; align-items:center; justify-content:center; gap:0.4rem; margin-bottom:1rem; font-size:0.82rem; color:var(--subtext); }
-.fp-rating-stars { color:var(--harvest); font-size:0.95rem; letter-spacing:1px; }
-.fp-edit-btn { display:block; width:100%; padding:0.65rem; background:var(--mist); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.82rem; color:var(--earth); cursor:pointer; text-decoration:none; text-align:center; transition:background 0.2s; }
-.fp-edit-btn:hover { background:#e0d8c8; }
-
-/* Links list in sidebar */
-.sidebar-links { display:flex; flex-direction:column; gap:0.3rem; }
-.sidebar-link { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.85rem; border-radius:10px; text-decoration:none; color:var(--subtext); font-size:0.86rem; font-weight:500; transition:all 0.15s; }
-.sidebar-link:hover { background:var(--mist); color:var(--earth); }
-.sidebar-link-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
-
-/* Activity dot indicator */
-.activity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.dot-pending   { background:#f59e0b; }
-.dot-confirmed { background:#3b82f6; }
-.dot-delivered { background:#22c55e; }
-.dot-cancelled { background:#ef4444; }
+  @media(max-width: 992px) { .dash-wrap { grid-template-columns: 1fr; } .sidebar { display: none; } .topbar { padding-left: 1.5rem; } .page-shell { margin-left: 0; } }
 </style>
 </head>
 <body>
-<nav id="mainNav">
-  <a href="/" class="logo">Farm<span>Ad</span></a>
-  <ul class="nav-links" id="navLinks"></ul>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-text">Farm<span>Ad</span></span>
+  </div>
+  <div class="sidebar-nav">
+    <div style="padding: 1rem; font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 2px;">MAIN</div>
+    <a href="dashboard.html" class="nav-item active">🏠 Dashboard</a>
+    <a href="my-listings.html" class="nav-item">🌿 My Listings</a>
+    <a href="orders.html" class="nav-item">📦 Orders</a>
+    <a href="prices.html" class="nav-item">📊 Market Prices</a>
+    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+    <a href="#" onclick="handleLogout()" class="nav-item" style="margin-top: 2rem; color: var(--red);">Logout</a>
+  </div>
 </nav>
 
-<div class="page-wrap" style="padding-top:72px; background:var(--cream); min-height:100vh;">
+<div class="page-shell">
+  <header class="topbar">
+    <div class="topbar-left"><strong id="farm-name-display">My Farm</strong></div>
+    <div class="topbar-right">
+      <div class="topbar-profile">
+        <div class="topbar-avatar" id="user-initial">F</div>
+        <span class="topbar-name" id="user-name-display">Farmer</span>
+      </div>
+    </div>
+  </header>
 
-  <!-- Hero banner — filled by JS -->
-  <div id="dashHero"></div>
+  <section class="dash-hero">
+    <div class="hero-greeting">WELCOME BACK</div>
+    <h1 id="welcome-name" style="font-family: 'Playfair Display'; font-size: 2.5rem;">Hello, Farmer</h1>
+    <p style="opacity: 0.6; margin-top: 0.5rem;">Here is what's happening on your farm today.</p>
+  </section>
 
-  <!-- Main content -->
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div id="stat-wallet" style="font-size: 1.5rem; font-weight: 900; color: var(--harvest);">KSh 0</div>
+      <div style="font-size: 0.7rem; opacity: 0.5;">Wallet Balance</div>
+    </div>
+    <div class="stat-cell">
+      <div id="stat-orders" style="font-size: 1.5rem; font-weight: 900;">0</div>
+      <div style="font-size: 0.7rem; opacity: 0.5;">Active Orders</div>
+    </div>
+    <div class="stat-cell">
+      <div id="stat-listings" style="font-size: 1.5rem; font-weight: 900;">0</div>
+      <div style="font-size: 0.7rem; opacity: 0.5;">Live Listings</div>
+    </div>
+    <div class="stat-cell">
+      <div id="stat-rating" style="font-size: 1.5rem; font-weight: 900;">5.0</div>
+      <div style="font-size: 0.7rem; opacity: 0.5;">Farmer Rating</div>
+    </div>
+  </div>
+
   <div class="dash-wrap">
-    <main id="dashMain">
-      <div style="display:flex;flex-direction:column;gap:1.25rem">
-        <div class="skeleton" style="height:44px;border-radius:100px;width:min(360px,100%)"></div>
-        <div class="skeleton" style="height:200px;border-radius:16px"></div>
-        <div class="skeleton" style="height:140px;border-radius:16px"></div>
-        <div class="skeleton" style="height:140px;border-radius:16px"></div>
+    <main>
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+        <a href="my-listings.html" class="qbtn qbtn-primary">+ Post New Listing</a>
+        <a href="orders.html" class="qbtn qbtn-soft">View All Orders</a>
+        <a href="prices.html" class="qbtn qbtn-soft">Check Market Prices</a>
+      </div>
+
+      <h2 style="font-family: 'Playfair Display'; margin-bottom: 1rem;">Recent Orders</h2>
+      <div id="orders-container">
+        <p style="color: var(--subtext);">Loading orders...</p>
       </div>
     </main>
-    <aside id="dashSidebar">
-      <div class="skeleton" style="height:280px;border-radius:24px;margin-bottom:1.25rem"></div>
-      <div class="skeleton" style="height:160px;border-radius:24px"></div>
+
+    <aside>
+      <div style="background: white; border-radius: var(--radius); padding: 1.5rem; border: 1px solid var(--border);">
+        <h3 style="font-family: 'Playfair Display'; margin-bottom: 1rem;">Quick Tips</h3>
+        <p style="font-size: 0.85rem; line-height: 1.6; color: var(--subtext);">
+          Ensure your <strong>harvest dates</strong> are accurate to help buyers plan their pickup. Organic produce often fetches a 15% higher price!
+        </p>
+        <a href="prices.html" style="display: block; margin-top: 1rem; color: var(--leaf); font-weight: 700; text-decoration: none; font-size: 0.8rem;">View Market Trends →</a>
+      </div>
     </aside>
   </div>
 </div>
 
-<!-- Review modal -->
-<div class="modal-overlay" id="reviewModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeReviewModal()">✕</button>
-    <div style="font-size:1.5rem;margin-bottom:0.5rem">⭐</div>
-    <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;color:var(--earth);margin-bottom:0.25rem">Leave a Review</h3>
-    <p style="font-size:0.83rem;color:var(--subtext);margin-bottom:1.5rem" id="reviewFor"></p>
-    <div class="alert alert-error" id="reviewError"></div>
-    <div class="form-group">
-      <label>Your Rating</label>
-      <div id="starPicker" style="display:flex;gap:0.4rem;margin-bottom:0.5rem">
-        <span class="star-opt" data-v="1" onclick="pickStar(1)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
-        <span class="star-opt" data-v="2" onclick="pickStar(2)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
-        <span class="star-opt" data-v="3" onclick="pickStar(3)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
-        <span class="star-opt" data-v="4" onclick="pickStar(4)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
-        <span class="star-opt" data-v="5" onclick="pickStar(5)" style="font-size:1.8rem;cursor:pointer;transition:transform 0.1s">☆</span>
-      </div>
-      <input type="hidden" id="reviewRating" value="5">
-    </div>
-    <div class="form-group">
-      <label>Comment <span style="font-weight:400;color:var(--subtext)">(optional)</span></label>
-      <textarea id="reviewComment" rows="3" placeholder="Share your experience…" style="border:1.5px solid rgba(92,51,23,0.2);border-radius:12px;padding:0.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;width:100%;resize:vertical;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--leaf)'" onblur="this.style.borderColor='rgba(92,51,23,0.2)'"></textarea>
-    </div>
-    <button class="submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review</button>
-  </div>
-</div>
-
-<script src="/shared.js"></script>
 <script>
-// Override nav for dashboard — only show avatar + sign out
-updateNav = function() {
-  const user = getUser();
-  const nav  = document.getElementById('navLinks');
-  if (!nav) return;
-  if (user) {
-    const init = user.name.charAt(0).toUpperCase();
-    nav.innerHTML = `
-      <li class="nav-user">
-        <a href="/pages/dashboard.html" style="display:flex;align-items:center;gap:0.6rem;text-decoration:none">
-          <div class="nav-avatar" title="${user.name}">${init}</div>
-          <span class="nav-username">${user.name.split(' ')[0]}</span>
-        </a>
-        <button class="nav-logout" onclick="handleLogout()">Sign Out</button>
-      </li>`;
+  // Shared Backend Utility Logic
+  const API_URL = 'https://api.yourfarmad.com'; // Replace with your real API endpoint
+
+  async function apiFetch(endpoint, options = {}) {
+    const auth = JSON.parse(localStorage.getItem('farmad_auth') || '{}');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(auth.token ? { 'Authorization': `Bearer ${auth.token}` } : {}),
+      ...options.headers
+    };
+    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+    const data = await response.json();
+    return { ok: response.ok, data };
   }
-};
-</script>
-<script>
-const user = requireAuth();
-if (!user) throw new Error('redirect');
-const isFarmer = user.role === 'farmer';
 
-let pendingReviewOrder = null;
-let selectedStar = 5;
+  function handleLogout() {
+    localStorage.removeItem('farmad_auth');
+    window.location.href = 'login.html';
+  }
 
-function pickStar(n) {
-  selectedStar = n;
-  document.getElementById('reviewRating').value = n;
-  document.querySelectorAll('.star-opt').forEach((s,i) => {
-    s.textContent = i < n ? '★' : '☆';
-    s.style.color  = i < n ? 'var(--harvest)' : 'var(--subtext)';
-    s.style.transform = i < n ? 'scale(1.1)' : 'scale(1)';
-  });
-}
-pickStar(5);
+  // Dashboard Initialization
+  async function init() {
+    const auth = JSON.parse(localStorage.getItem('farmad_auth') || 'null');
+    
+    // Auth Check
+    if (!auth || !auth.user || auth.user.role !== 'farmer') {
+      window.location.href = 'login.html';
+      return;
+    }
 
-async function loadDash() {
-  const [summaryRes, ordersRes, pendingRes, meRes] = await Promise.all([
-    apiFetch('/orders/summary/me'),
-    apiFetch('/orders?limit=8'),
-    apiFetch('/reviews/pending'),
-    apiFetch('/auth/me')
-  ]);
+    // Populate User Info
+    const user = auth.user;
+    document.getElementById('user-name-display').textContent = user.name;
+    document.getElementById('welcome-name').textContent = `Hello, ${user.name.split(' ')[0]}`;
+    document.getElementById('user-initial').textContent = user.name.charAt(0);
+    document.getElementById('farm-name-display').textContent = user.farm_name || 'My Farm';
 
-  const summary  = summaryRes.ok ? summaryRes.data.data  : {};
-  const orders   = ordersRes.ok  ? ordersRes.data.data.orders : [];
-  const pending  = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
-  const me       = meRes.ok      ? meRes.data.data.user   : user;
-  const profile  = me.profile || {};
-  const revenue  = isFarmer ? summary.total_revenue : summary.total_spent;
+    // Fetch Stats
+    const statsRes = await apiFetch('/farmer/stats');
+    if (statsRes.ok) {
+      const s = statsRes.data;
+      document.getElementById('stat-wallet').textContent = `KSh ${s.balance.toLocaleString()}`;
+      document.getElementById('stat-orders').textContent = s.active_orders;
+      document.getElementById('stat-listings').textContent = s.live_listings;
+      document.getElementById('stat-rating').textContent = s.rating || '5.0';
+    }
 
-  /* ── Hero ── */
-  document.getElementById('dashHero').innerHTML = `
-    <div class="dash-hero">
-      <div class="hero-inner">
-        <div class="hero-left">
-          <div class="hero-greeting">${isFarmer ? '🌾 Farmer Dashboard' : '🛒 Buyer Dashboard'}</div>
-          <div class="hero-name">Welcome back,<br>${me.name.split(' ')[0]}.</div>
-          <div class="hero-sub">${isFarmer ? (profile.farm_name||'') + ' · ' : ''}${me.county||''}</div>
-          <div class="hero-avatar-wrap">
-            <div class="hero-avatar">${me.name.charAt(0)}</div>
-            <div class="hero-badge">${me.is_verified ? '✓ Verified' : isFarmer ? '🌱 Farmer' : '🛒 Buyer'}</div>
-            ${pending.length > 0 ? `<div class="hero-badge" style="background:rgba(232,160,32,0.2);border-color:rgba(232,160,32,0.35);color:var(--harvest)">⭐ ${pending.length} review${pending.length>1?'s':''} pending</div>` : ''}
+    // Fetch Recent Orders
+    const ordersRes = await apiFetch('/orders?limit=3');
+    const container = document.getElementById('orders-container');
+    if (ordersRes.ok && ordersRes.data.length > 0) {
+      container.innerHTML = ordersRes.data.map(order => `
+        <div class="order-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-weight: 700;">${order.item_name}</div>
+              <div style="font-size: 0.75rem; color: var(--subtext);">Order #${order.id.slice(-6)} • ${order.quantity} ${order.unit}</div>
+            </div>
+            <div style="font-weight: 900; color: var(--earth);">KSh ${order.total.toLocaleString()}</div>
+          </div>
+          <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 4px; background: var(--mist); text-transform: uppercase; font-weight: 700;">${order.status}</span>
+            <a href="orders.html?id=${order.id}" style="font-size: 0.8rem; color: var(--leaf); font-weight: 700; text-decoration: none;">Manage Order →</a>
           </div>
         </div>
-        <a href="/pages/settings.html" class="hero-edit-link">Edit profile →</a>
-      </div>
-      <div class="stats-strip">
-        <div class="stat-cell"><div class="stat-cell-icon">📦</div><div class="stat-cell-num">${summary.total_orders||0}</div><div class="stat-cell-label">Total Orders</div></div>
-        <div class="stat-cell"><div class="stat-cell-icon">✅</div><div class="stat-cell-num">${summary.delivered||0}</div><div class="stat-cell-label">Completed</div></div>
-        <div class="stat-cell"><div class="stat-cell-icon">⏳</div><div class="stat-cell-num">${summary.pending||0}</div><div class="stat-cell-label">Pending</div></div>
-        <div class="stat-cell"><div class="stat-cell-icon">${isFarmer?'💰':'🛍️'}</div><div class="stat-cell-num highlight">KSh ${fmtPrice(revenue||0)}</div><div class="stat-cell-label">${isFarmer?'Revenue':'Total Spent'}</div></div>
-      </div>
-    </div>`;
-
-  /* ── Main ── */
-  const mainEl = document.getElementById('dashMain');
-  mainEl.innerHTML = `
-    <!-- Quick actions -->
-    <div class="quick-row">
-      ${isFarmer
-        ? `<a href="/pages/my-listings.html" class="qbtn qbtn-primary">＋ Post Listing</a>
-           <a href="/pages/orders.html"      class="qbtn qbtn-soft">📦 All Orders</a>
-           <a href="/pages/prices.html"      class="qbtn qbtn-soft">📊 Prices</a>
-           <a href="/pages/my-listings.html" class="qbtn qbtn-soft">🌿 My Listings</a>`
-        : `<a href="/pages/browse.html"      class="qbtn qbtn-primary">🛒 Browse Produce</a>
-           <a href="/pages/orders.html"      class="qbtn qbtn-soft">📦 My Orders</a>
-           <a href="/pages/prices.html"      class="qbtn qbtn-soft">📊 Prices</a>`}
-    </div>
-
-    <!-- Pending reviews -->
-    ${pending.length > 0 ? `
-    <div style="margin-bottom:2rem">
-      <div class="sec-head"><div class="sec-title">⭐ Reviews to Write</div></div>
-      ${pending.map(p=>`
-        <div class="review-card">
-          <div class="rc-icon">👤</div>
-          <div style="flex:1;min-width:0">
-            <div class="rc-name">${p.reviewee_name}</div>
-            <div class="rc-sub">${p.items_summary||'Order #'+p.order_id.slice(0,8).toUpperCase()}</div>
-          </div>
-          <button class="qbtn qbtn-soft" style="padding:0.45rem 1rem;font-size:0.78rem;border-radius:8px" onclick="openReview('${p.order_id}','${p.reviewee_id}','${p.reviewee_name}')">Write Review →</button>
-        </div>`).join('')}
-    </div>` : ''}
-
-    <!-- Recent Orders -->
-    <div>
-      <div class="sec-head">
-        <div class="sec-title">Recent Orders</div>
-        <a href="/pages/orders.html" class="sec-link">View all →</a>
-      </div>
-      ${orders.length === 0
-        ? `<div class="empty-state" style="padding:3rem 1rem">
-             <div class="icon">${isFarmer?'🌾':'🛒'}</div>
-             <h3>No orders yet</h3>
-             <p>${isFarmer ? 'When buyers place orders, they\'ll appear here.' : 'Browse listings and place your first order.'}</p>
-             <a href="${isFarmer?'/pages/my-listings.html':'/pages/browse.html'}" class="btn btn-primary btn-sm" style="margin-top:1.25rem">${isFarmer?'Post a Listing':'Browse Produce'}</a>
-           </div>`
-        : orders.map(o => buildOrderCard(o)).join('')}
-    </div>`;
-
-  /* ── Sidebar ── */
-  const sideEl = document.getElementById('dashSidebar');
-  sideEl.innerHTML = `
-    <!-- Profile card -->
-    <div class="sidebar-card">
-      <div class="farm-profile">
-        <div class="fp-avatar">${me.name.charAt(0)}</div>
-        <div class="fp-name">${me.name}</div>
-        <div class="fp-role">${isFarmer ? (profile.farm_name||'Farmer') : (profile.business_name||'Buyer')} · ${me.county||''}</div>
-        ${profile.rating > 0 ? `
-        <div class="fp-rating" style="margin-top:0.6rem">
-          <span class="fp-rating-stars">${'★'.repeat(Math.round(profile.rating))}${'☆'.repeat(5-Math.round(profile.rating))}</span>
-          <span>${Number(profile.rating).toFixed(1)} (${profile.total_reviews||0} reviews)</span>
-        </div>` : ''}
-        <div class="fp-stats">
-          ${isFarmer
-            ? `<div class="fp-stat"><div class="fp-stat-num">${profile.total_sales||0}</div><div class="fp-stat-label">Sales</div></div>
-               <div class="fp-stat"><div class="fp-stat-num">${summary.total_orders||0}</div><div class="fp-stat-label">Orders</div></div>`
-            : `<div class="fp-stat"><div class="fp-stat-num">${summary.total_orders||0}</div><div class="fp-stat-label">Orders</div></div>
-               <div class="fp-stat"><div class="fp-stat-num">${summary.delivered||0}</div><div class="fp-stat-label">Completed</div></div>`}
-        </div>
-        <a href="/pages/settings.html" class="fp-edit-btn">Edit Profile</a>
-      </div>
-    </div>
-
-    <!-- Navigation shortcuts -->
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Quick Links</div>
-      <div class="sidebar-links">
-        ${isFarmer ? `
-        <a href="/pages/my-listings.html" class="sidebar-link"><div class="sidebar-link-icon" style="background:#E8F4E8">🌿</div> My Listings</a>
-        <a href="/pages/orders.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#EFF6FF">📦</div> Incoming Orders</a>
-        <a href="/pages/prices.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#FFFBEB">📊</div> Market Prices</a>
-        <a href="/pages/settings.html"    class="sidebar-link"><div class="sidebar-link-icon" style="background:var(--mist)">⚙️</div> Account Settings</a>
-        ` : `
-        <a href="/pages/browse.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#E8F4E8">🛒</div> Browse Produce</a>
-        <a href="/pages/orders.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#EFF6FF">📦</div> My Orders</a>
-        <a href="/pages/prices.html"      class="sidebar-link"><div class="sidebar-link-icon" style="background:#FFFBEB">📊</div> Market Prices</a>
-        <a href="/pages/settings.html"    class="sidebar-link"><div class="sidebar-link-icon" style="background:var(--mist)">⚙️</div> Account Settings</a>
-        `}
-      </div>
-    </div>
-
-    <!-- Order status breakdown -->
-    ${summary.total_orders > 0 ? `
-    <div class="sidebar-card">
-      <div class="sidebar-card-title">Order Breakdown</div>
-      ${buildStatusBar('Pending',   summary.pending||0,   summary.total_orders, 'dot-pending')}
-      ${buildStatusBar('Confirmed', summary.confirmed||0, summary.total_orders, 'dot-confirmed')}
-      ${buildStatusBar('Delivered', summary.delivered||0, summary.total_orders, 'dot-delivered')}
-      ${buildStatusBar('Cancelled', summary.cancelled||0, summary.total_orders, 'dot-cancelled')}
-    </div>` : ''}`;
-}
-
-function buildStatusBar(label, count, total, dotClass) {
-  const pct = total > 0 ? Math.round(count/total*100) : 0;
-  return `<div style="margin-bottom:0.7rem">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
-      <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--subtext)">
-        <div class="activity-dot ${dotClass}"></div>${label}
-      </div>
-      <span style="font-size:0.75rem;font-weight:600;color:var(--earth)">${count}</span>
-    </div>
-    <div style="background:var(--mist);border-radius:100px;height:5px;overflow:hidden">
-      <div style="background:var(--leaf);height:100%;border-radius:100px;width:${pct}%;transition:width 0.6s ease"></div>
-    </div>
-  </div>`;
-}
-
-function buildOrderCard(o) {
-  const party = isFarmer ? o.buyer_name : (o.farm_name || o.farmer_name);
-  const partyLabel = isFarmer ? '← from' : '→ to';
-  const actions = buildOrderActions(o);
-  return `<div class="order-card">
-    <div class="order-card-left">
-      <div class="oc-top">
-        <span class="oc-id">#${o.id.slice(0,8).toUpperCase()}</span>
-        ${statusBadge(o.status)}
-        <span class="oc-amount">KSh ${fmtPrice(o.total_amount)}</span>
-      </div>
-      <div class="oc-meta">
-        <span>${partyLabel} <strong style="color:var(--earth)">${party}</strong></span>
-        <span class="oc-dot">·</span>
-        <span>${fmtDate(o.created_at)}</span>
-        ${o.item_count ? `<span class="oc-dot">·</span><span>${o.item_count} item${o.item_count>1?'s':''}</span>` : ''}
-      </div>
-      ${actions ? `<div class="oc-actions">${actions}</div>` : ''}
-    </div>
-    <div class="oc-right">
-      <a href="/pages/orders.html?id=${o.id}" style="font-size:0.75rem;color:var(--leaf);text-decoration:none;font-weight:600;white-space:nowrap">Details →</a>
-    </div>
-  </div>`;
-}
-
-function buildOrderActions(o) {
-  const btns = [];
-  if (isFarmer) {
-    if (o.status==='pending')   btns.push(`<button class="oa-btn oa-confirm" onclick="doAction('${o.id}','confirm')">✓ Confirm</button>`);
-    if (o.status==='confirmed') btns.push(`<button class="oa-btn oa-ready"   onclick="doAction('${o.id}','ready')">📦 Mark Ready</button>`);
-    if (o.status==='ready')     btns.push(`<button class="oa-btn oa-transit"  onclick="doAction('${o.id}','in-transit')">🚚 Dispatch</button>`);
-  } else {
-    if (['ready','in_transit'].includes(o.status)) btns.push(`<button class="oa-btn oa-deliver" onclick="doAction('${o.id}','delivered')">✓ Confirm Receipt</button>`);
+      `).join('');
+    } else {
+      container.innerHTML = `<div style="padding: 2rem; text-align: center; background: white; border-radius: var(--radius); border: 1px dashed var(--border); color: var(--subtext);">No recent orders found.</div>`;
+    }
   }
-  if (!['delivered','cancelled'].includes(o.status)) btns.push(`<button class="oa-btn oa-cancel" onclick="doAction('${o.id}','cancel')">Cancel</button>`);
-  return btns.join('');
-}
 
-async function doAction(id, action) {
-  const { ok, data } = await apiFetch(`/orders/${id}/${action}`, { method:'PATCH' });
-  if (ok) { toast('Order updated ✅', 'success'); loadDash(); }
-  else toast(data.message || 'Failed', 'error');
-}
-
-/* ── Review modal ── */
-function openReview(orderId, revieweeId, name) {
-  pendingReviewOrder = { orderId, revieweeId };
-  document.getElementById('reviewFor').textContent = `Reviewing your experience with ${name}`;
-  document.getElementById('reviewError').style.display = 'none';
-  document.getElementById('reviewComment').value = '';
-  pickStar(5);
-  document.getElementById('reviewModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeReviewModal() {
-  document.getElementById('reviewModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('reviewModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeReviewModal(); });
-
-async function submitReview() {
-  if (!pendingReviewOrder) return;
-  const btn = document.getElementById('reviewSubmitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  const { ok, data } = await apiFetch('/reviews', { method:'POST', body: JSON.stringify({
-    order_id: pendingReviewOrder.orderId,
-    rating:   parseInt(document.getElementById('reviewRating').value),
-    comment:  document.getElementById('reviewComment').value.trim()
-  })});
-  if (ok) {
-    closeReviewModal();
-    toast('Review submitted! ⭐', 'success');
-    loadDash();
-  } else {
-    const e = document.getElementById('reviewError');
-    e.textContent = data.message || 'Could not submit review.';
-    e.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Submit Review';
-  }
-}
-
-loadDash();
+  document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
