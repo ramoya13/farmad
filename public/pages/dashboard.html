@@ -40,10 +40,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 .topbar-pill { font-size: 0.7rem; font-weight: 700; padding: 0.22rem 0.65rem; border-radius: 7px; background: #e8f4e8; color: var(--leaf); border: 1px solid rgba(58,125,44,0.22); }
 .topbar-logout { font-size: 0.78rem; font-weight: 600; color: var(--subtext); background: none; border: none; cursor: pointer; padding: 0.3rem 0.7rem; border-radius: 8px; transition: all 0.15s; }
 .topbar-logout:hover { background: #fee2e2; color: #991b1b; }
-.topbar-links { display: flex; align-items: center; gap: 0.25rem; }
-.topbar-nav-link { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.9rem; border-radius: 100px; font-size: 0.82rem; font-weight: 600; color: var(--subtext); text-decoration: none; transition: all 0.15s; }
-.topbar-nav-link:hover { background: var(--mist); color: var(--earth); }
-.topbar-nav-link.active { background: #e8f4e8; color: var(--leaf); }
 
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
 .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--earth); display: flex; flex-direction: column; z-index: 200; overflow-y: auto; }
@@ -235,12 +231,16 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 <header class="topbar">
   <div class="topbar-left">
     <button class="topbar-hamburger" onclick="toggleSidebar()">☰</button>
-    <nav class="topbar-links">
-      <a href="/pages/browse.html" class="topbar-nav-link" id="topbarBrowse">🛒 Browse</a>
-      <a href="/pages/prices.html" class="topbar-nav-link" id="topbarPrices">📊 Prices</a>
-    </nav>
+    <div class="topbar-wallet" id="topbarWallet" style="display:none">💰 KSh —</div>
   </div>
   <div class="topbar-right">
+    <span class="topbar-pill" id="topbarPill">…</span>
+    <div class="topbar-icon" id="topbarNotif">🔔</div>
+    <div class="topbar-profile" id="topbarProfile">
+      <div class="topbar-avatar" id="topbarAvatar">…</div>
+      <span class="topbar-name" id="topbarName">…</span>
+      <span style="font-size:0.65rem;color:var(--subtext)">▾</span>
+    </div>
     <button class="topbar-logout" onclick="handleLogout()">Sign Out</button>
   </div>
 </header>
@@ -317,20 +317,6 @@ updateNav = function() {};
 const user = requireAuth();
 if (!user) throw new Error('redirect');
 const isFarmer = user.role === 'farmer';
-
-/* ── Topbar nav active state & role visibility ── */
-(function() {
-  const path = location.pathname;
-  document.querySelectorAll('.topbar-nav-link').forEach(a => {
-    if (a.getAttribute('href') && path.includes(a.getAttribute('href').split('/').pop().replace('.html',''))) {
-      a.classList.add('active');
-    }
-  });
-  if (isFarmer) {
-    const browseLink = document.getElementById('topbarBrowse');
-    if (browseLink) browseLink.style.display = 'none';
-  }
-})();
 
 let pendingReviewOrder = null;
 
