@@ -229,20 +229,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 
 <!-- ── Top Bar ─────────────────────────────────────────────────────────── -->
 <header class="topbar">
-  <div class="topbar-left">
-    <button class="topbar-hamburger" onclick="toggleSidebar()">☰</button>
-    <div class="topbar-wallet" id="topbarWallet" style="display:none">💰 KSh —</div>
-  </div>
-  <div class="topbar-right">
-    <span class="topbar-pill" id="topbarPill">…</span>
-    <div class="topbar-icon" id="topbarNotif">🔔</div>
-    <div class="topbar-profile" id="topbarProfile">
-      <div class="topbar-avatar" id="topbarAvatar">…</div>
-      <span class="topbar-name" id="topbarName">…</span>
-      <span style="font-size:0.65rem;color:var(--subtext)">▾</span>
-    </div>
-    <button class="topbar-logout" onclick="handleLogout()">Sign Out</button>
-  </div>
 </header>
 
 <!-- ── Page Shell ──────────────────────────────────────────────────────── -->
@@ -523,20 +509,6 @@ async function loadDash() {
   const profile = me.profile || {};
   const revenue = isFarmer ? (summary.total_revenue || 0) : (summary.total_spent || 0);
   const init    = me.name.charAt(0).toUpperCase();
-
-  /* ── Topbar ── */
-  document.getElementById('topbarAvatar').textContent = init;
-  document.getElementById('topbarName').textContent   = me.name.split(' ')[0];
-  document.getElementById('topbarPill').textContent   = isFarmer ? '🌱 Farmer' : '🛒 Buyer';
-  if (isFarmer && revenue > 0) {
-    const wallet = document.getElementById('topbarWallet');
-    wallet.style.display = '';
-    wallet.textContent   = `💰 KSh ${fmtPrice(revenue)}`;
-  }
-  if (pending.length > 0) {
-    document.getElementById('topbarNotif').innerHTML =
-      `🔔<span class="topbar-badge">${pending.length}</span>`;
-  }
 
   /* ── Sidebar nav + footer ── */
   document.getElementById('sidebarNav').innerHTML = buildSidebarNav(summary, pending);
