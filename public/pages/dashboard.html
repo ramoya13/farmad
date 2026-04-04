@@ -28,7 +28,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 
 /* ── Top Bar ─────────────────────────────────────────────────────────────── */
 .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem 0 calc(var(--sidebar-w) + 1.5rem); z-index: 100; }
-.topbar-nav { display: flex; align-items: center; gap: 0.25rem; }
+.topbar-nav { position: fixed; top: 0; left: calc(var(--sidebar-w) + 1.5rem); height: var(--topbar-h); display: flex; align-items: center; gap: 0.25rem; z-index: 101; }
 .topbar-nav-link { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--subtext); text-decoration: none; transition: all 0.15s; }
 .topbar-nav-link:hover { background: var(--mist); color: var(--earth); }
 .topbar-nav-link.active { background: #e8f4e8; color: var(--leaf); }
@@ -244,6 +244,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
   .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
   .sidebar.open { transform: translateX(0); }
   .topbar { padding-left: 1.5rem; }
+  .topbar-nav { left: 1.5rem; }
   .page-shell { margin-left: 0; }
   .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; }
   .overlay.visible { display: block; }
@@ -269,12 +270,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <!-- ── Top Bar ─────────────────────────────────────────────────────────── -->
-<header class="topbar">
-  <nav class="topbar-nav">
-    <a href="/pages/browse.html" class="topbar-nav-link">🛒 Browse</a>
-    <a href="/pages/prices.html" class="topbar-nav-link">📊 Prices</a>
-  </nav>
-</header>
+<header class="topbar"></header>
+
+<nav class="topbar-nav" id="topbarNav">
+  <a href="/pages/browse.html" class="topbar-nav-link">🛒 Browse</a>
+  <a href="/pages/prices.html" class="topbar-nav-link">📊 Prices</a>
+</nav>
 
 <!-- ── Page Shell ──────────────────────────────────────────────────────── -->
 <div class="page-shell">
