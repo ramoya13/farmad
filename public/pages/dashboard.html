@@ -183,6 +183,43 @@ body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(
 .bar-green { background: #22c55e; }
 .bar-red   { background: #ef4444; }
 
+/* ── Earnings / Spending Breakdown ──────────────────────────────────────── */
+.breakdown-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+.breakdown-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem; margin-top: 1rem; }
+.breakdown-cell { background: var(--mist); border-radius: 12px; padding: 0.9rem 1rem; }
+.breakdown-cell-label { font-size: 0.68rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
+.breakdown-cell-val { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--earth); }
+.breakdown-cell-val.gold { color: var(--harvest); }
+.breakdown-cell-sub { font-size: 0.7rem; color: var(--subtext); margin-top: 0.15rem; }
+
+/* ── Rating & Reviews ────────────────────────────────────────────────────── */
+.rating-hero { display: flex; align-items: center; gap: 1.25rem; padding: 0.5rem 0 1.25rem; border-bottom: 1px solid var(--border); margin-bottom: 1.1rem; }
+.rating-big { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; color: var(--earth); line-height: 1; }
+.rating-stars-lg { color: var(--harvest); font-size: 1.1rem; letter-spacing: 2px; }
+.rating-count { font-size: 0.75rem; color: var(--subtext); margin-top: 0.2rem; }
+.star-bar-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.45rem; font-size: 0.75rem; color: var(--subtext); }
+.star-bar-label { width: 20px; text-align: right; flex-shrink: 0; }
+.star-bar-track { flex: 1; height: 6px; background: var(--mist); border-radius: 100px; overflow: hidden; }
+.star-bar-fill { height: 100%; border-radius: 100px; background: var(--harvest); transition: width 0.8s ease; width: 0; }
+.star-bar-count { width: 24px; flex-shrink: 0; text-align: right; font-weight: 600; color: var(--earth); }
+.inline-review { padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
+.inline-review:last-child { border-bottom: none; padding-bottom: 0; }
+.ir-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+.ir-stars { color: var(--harvest); font-size: 0.78rem; letter-spacing: 1px; }
+.ir-name { font-size: 0.78rem; font-weight: 600; color: var(--earth); }
+.ir-date { font-size: 0.7rem; color: var(--subtext); margin-left: auto; }
+.ir-comment { font-size: 0.8rem; color: var(--subtext); line-height: 1.5; }
+
+/* ── Saved / Browsed Listings ────────────────────────────────────────────── */
+.listing-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 0.75rem; margin-top: 1rem; }
+.listing-mini { background: var(--mist); border-radius: 12px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s; }
+.listing-mini:hover { box-shadow: 0 4px 16px rgba(45,27,14,0.08); transform: translateY(-1px); }
+.listing-mini-name { font-size: 0.85rem; font-weight: 700; color: var(--earth); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.listing-mini-farm { font-size: 0.72rem; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.listing-mini-price { font-size: 0.82rem; font-weight: 700; color: var(--leaf); margin-top: 0.2rem; }
+.listing-mini-reorder { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 700; color: var(--leaf); background: #e8f4e8; border: none; border-radius: 6px; padding: 0.25rem 0.6rem; cursor: pointer; margin-top: 0.4rem; text-decoration: none; transition: background 0.15s; }
+.listing-mini-reorder:hover { background: #d1ead1; }
+
 /* ── Empty state ────────────────────────────────────────────────────────── */
 .empty-state { text-align: center; padding: 3rem 1rem; color: var(--subtext); }
 .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
@@ -513,20 +550,24 @@ async function submitReview() {
    MAIN LOAD
 ══════════════════════════════════════════════════════════════════════════ */
 async function loadDash() {
-  const [summaryRes, ordersRes, pendingRes, meRes] = await Promise.all([
+  const [summaryRes, ordersRes, pendingRes, meRes, reviewsRecRes, savedRes] = await Promise.all([
     apiFetch('/orders/summary/me'),
     apiFetch('/orders?limit=8'),
     apiFetch('/reviews/pending'),
-    apiFetch('/auth/me')
+    apiFetch('/auth/me'),
+    apiFetch('/reviews/received?limit=3'),
+    isFarmer ? Promise.resolve({ ok: false }) : apiFetch('/listings/saved?limit=4'),
   ]);
 
-  const summary = summaryRes.ok ? summaryRes.data.data  : {};
-  const orders  = ordersRes.ok  ? ordersRes.data.data.orders : [];
-  const pending = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
-  const me      = meRes.ok      ? meRes.data.data.user  : user;
-  const profile = me.profile || {};
-  const revenue = isFarmer ? (summary.total_revenue || 0) : (summary.total_spent || 0);
-  const init    = me.name.charAt(0).toUpperCase();
+  const summary    = summaryRes.ok ? summaryRes.data.data        : {};
+  const orders     = ordersRes.ok  ? ordersRes.data.data.orders  : [];
+  const pending    = pendingRes.ok ? pendingRes.data.data.pending_reviews : [];
+  const me         = meRes.ok      ? meRes.data.data.user        : user;
+  const profile    = me.profile || {};
+  const revenue    = isFarmer ? (summary.total_revenue || 0) : (summary.total_spent || 0);
+  const init       = me.name.charAt(0).toUpperCase();
+  const reviewsRec = reviewsRecRes.ok ? (reviewsRecRes.data.data.reviews || []) : [];
+  const savedListings = savedRes.ok ? (savedRes.data.data.listings || []) : [];
 
   /* ── Sidebar nav + footer ── */
   document.getElementById('sidebarNav').innerHTML = buildSidebarNav(summary, pending);
@@ -580,6 +621,132 @@ async function loadDash() {
 
   /* ── Main column ── */
   const mainEl = document.getElementById('dashMain');
+
+  /* helpers for new sections */
+  const fmtStar = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+  const buildEarningsBreakdown = () => {
+    const avg = summary.total_orders > 0
+      ? Math.round((summary.total_revenue || 0) / summary.total_orders)
+      : 0;
+    return `
+    <div class="breakdown-card" style="margin-bottom:2rem">
+      <div class="sec-head" style="margin-bottom:0"><div class="sec-title">💰 Earnings Breakdown</div></div>
+      <div class="breakdown-grid">
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">This Week</div>
+          <div class="breakdown-cell-val gold">KSh ${fmtPrice(summary.revenue_week || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">This Month</div>
+          <div class="breakdown-cell-val gold">KSh ${fmtPrice(summary.revenue_month || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">All Time</div>
+          <div class="breakdown-cell-val">KSh ${fmtPrice(summary.total_revenue || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">Avg Order Value</div>
+          <div class="breakdown-cell-val">KSh ${fmtPrice(avg)}</div>
+          <div class="breakdown-cell-sub">across ${summary.total_orders || 0} orders</div>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  const buildSpendingBreakdown = () => {
+    const avg = summary.total_orders > 0
+      ? Math.round((summary.total_spent || 0) / summary.total_orders)
+      : 0;
+    return `
+    <div class="breakdown-card" style="margin-bottom:2rem">
+      <div class="sec-head" style="margin-bottom:0"><div class="sec-title">💸 Spending Breakdown</div></div>
+      <div class="breakdown-grid">
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">This Week</div>
+          <div class="breakdown-cell-val gold">KSh ${fmtPrice(summary.spent_week || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">This Month</div>
+          <div class="breakdown-cell-val gold">KSh ${fmtPrice(summary.spent_month || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">All Time</div>
+          <div class="breakdown-cell-val">KSh ${fmtPrice(summary.total_spent || 0)}</div>
+        </div>
+        <div class="breakdown-cell">
+          <div class="breakdown-cell-label">Avg Order Value</div>
+          <div class="breakdown-cell-val">KSh ${fmtPrice(avg)}</div>
+          ${summary.top_category ? `<div class="breakdown-cell-sub">Top: ${summary.top_category}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  };
+
+  const buildRatingSection = () => {
+    const rating = profile.rating || 0;
+    const total  = profile.total_reviews || 0;
+    const dist   = profile.rating_distribution || {};
+    const totalVotes = [5,4,3,2,1].reduce((s,n) => s + (dist[n] || 0), 0) || 1;
+    const starBars = [5,4,3,2,1].map(n => {
+      const pct = Math.round((dist[n] || 0) / totalVotes * 100);
+      return `<div class="star-bar-row">
+        <span class="star-bar-label">${n}★</span>
+        <div class="star-bar-track"><div class="star-bar-fill" data-w="${pct}%"></div></div>
+        <span class="star-bar-count">${dist[n] || 0}</span>
+      </div>`;
+    }).join('');
+    const recentReviews = reviewsRec.slice(0,3).map(r => `
+      <div class="inline-review">
+        <div class="ir-header">
+          <span class="ir-stars">${fmtStar(r.rating)}</span>
+          <span class="ir-name">${r.reviewer_name || 'Anonymous'}</span>
+          <span class="ir-date">${fmtDate(r.created_at)}</span>
+        </div>
+        ${r.comment ? `<div class="ir-comment">${r.comment}</div>` : ''}
+      </div>`).join('');
+    return `
+    <div class="breakdown-card" style="margin-bottom:2rem">
+      <div class="sec-head" style="margin-bottom:0"><div class="sec-title">⭐ Rating & Reviews</div>
+        <a href="/pages/reviews.html" class="sec-link">View all →</a>
+      </div>
+      ${total === 0 ? `<p style="font-size:0.83rem;color:var(--subtext);margin-top:1rem">No reviews yet. Complete orders to start earning ratings.</p>` : `
+      <div class="rating-hero">
+        <div>
+          <div class="rating-big">${Number(rating).toFixed(1)}</div>
+          <div class="rating-stars-lg">${fmtStar(Math.round(rating))}</div>
+          <div class="rating-count">${total} review${total !== 1 ? 's' : ''}</div>
+        </div>
+        <div style="flex:1">${starBars}</div>
+      </div>
+      ${recentReviews ? `<div>${recentReviews}</div>` : ''}`}
+    </div>`;
+  };
+
+  const buildSavedListings = () => {
+    if (savedListings.length === 0) return `
+    <div class="breakdown-card" style="margin-bottom:2rem">
+      <div class="sec-head" style="margin-bottom:0"><div class="sec-title">🔖 Saved Listings</div>
+        <a href="/pages/browse.html" class="sec-link">Browse →</a>
+      </div>
+      <p style="font-size:0.83rem;color:var(--subtext);margin-top:1rem">No saved listings yet. Browse produce and save items you like.</p>
+    </div>`;
+    const cards = savedListings.map(l => `
+      <div class="listing-mini">
+        <div class="listing-mini-name">${l.produce_name || l.title || 'Listing'}</div>
+        <div class="listing-mini-farm">${l.farm_name || ''}</div>
+        <div class="listing-mini-price">KSh ${fmtPrice(l.price_per_unit || 0)} / ${l.unit || 'kg'}</div>
+        <a href="/pages/browse.html?listing=${l.id}" class="listing-mini-reorder">🛒 Order again</a>
+      </div>`).join('');
+    return `
+    <div class="breakdown-card" style="margin-bottom:2rem">
+      <div class="sec-head" style="margin-bottom:0"><div class="sec-title">🔖 Saved & Recent Listings</div>
+        <a href="/pages/browse.html" class="sec-link">Browse all →</a>
+      </div>
+      <div class="listing-grid">${cards}</div>
+    </div>`;
+  };
+
   mainEl.innerHTML = `
 
     ${!me.subscription_active ? `
@@ -614,6 +781,9 @@ async function loadDash() {
            <a href="/pages/orders.html"      class="qbtn qbtn-soft">📦 My Orders</a>
            <a href="/pages/prices.html"      class="qbtn qbtn-soft">📊 Market Prices</a>`}
     </div>
+
+    ${isFarmer ? buildEarningsBreakdown() : buildSpendingBreakdown()}
+    ${isFarmer ? buildRatingSection()     : buildSavedListings()}
 
     <div>
       <div class="sec-head">
@@ -681,7 +851,7 @@ async function loadDash() {
       ${buildStatusBar('Cancelled', summary.cancelled || 0, summary.total_orders, 'dot-cancelled', 'bar-red')}
     </div>` : ''}`;
 
-  /* animate progress bars after render */
+  /* animate progress bars + star bars after render */
   requestAnimationFrame(() => setTimeout(animateBars, 50));
 }
 
